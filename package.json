@@ -1,0 +1,72 @@
+{
+  "name": "@aegenet/ya-workspace-toolkit",
+  "description": "Yet Another Workspace Toolkit - The purpose of this package is to provide a set of tools to help you manage your workspace.",
+  "version": "0.0.0-dev",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "keywords": [
+    "workspace",
+    "toolkit",
+    "vite",
+    "rollup",
+    "typescript",
+    "eslint",
+    "prettier"
+  ],
+  "bin": {
+    "ya-workspace-toolkit": "./dist/build-flow-cli.cjs",
+    "ya-workspace-toolkit-projects": "./dist/get-projects-cli.cjs"
+  },
+  "exports": {
+    "node": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    },
+    "default": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "typings": "./dist/bundle.d.ts",
+  "author": "Alexandre Genet",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": "https://github.com/aegenet/ya-workspace-toolkit",
+  "dependencies": {
+    "@aegenet/ya-node-externals": "^1.0.0",
+    "@aegenet/ya-vite-banner": "^1.0.1",
+    "@eslint/js": "^9.0.0",
+    "@vitest/coverage-v8": "^1.5.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "rimraf": "^5.0.5",
+    "rollup-plugin-dts": "^6.1.0",
+    "typescript-eslint": "^7.7.0",
+    "vite": "^5.2.8",
+    "vitest": "^1.5.0"
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "scripts": {
+    "clean": "rimraf ./build ./dist ./coverage ./.nyc_output",
+    "lint": "eslint ./src/**/*.{js,ts,tsx}",
+    "lint:fix": "/eslint ./src/**/*.{js,ts,tsx} --fix",
+    "build": "npm run clean && npm run build:tsc && npm run build:dts && npm run build:vite",
+    "build:tsc": "node ./node_modules/typescript/bin/tsc",
+    "build:dts": "rollup -c rollup.config.dts.cjs --bundleConfigAsCjs",
+    "build:vite": "vite build -c ./vite.config.cjs",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage --coverage.provider=v8 --coverage.extension=.ts"
+  },
+  "devDependencies": {
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  }
+}

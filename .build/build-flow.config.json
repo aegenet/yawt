@@ -1,0 +1,16 @@
+[{
+  "name": "abc",
+  "links": [],
+  "dependencies": [],
+  "publish": false
+}, {
+  "name": "def",
+  "links": [],
+  "dependencies": [],
+  "publish": false
+}, {
+  "name": "ghi",
+  "links": [],
+  "dependencies": [],
+  "publish": false
+}]
