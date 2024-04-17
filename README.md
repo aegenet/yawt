@@ -3,9 +3,9 @@
 [![codecov](https://codecov.io/gh/aegenet/yawt/branch/main/graph/badge.svg?token=4E9LC0O0X1)](https://codecov.io/gh/aegenet/yawt)
 <br />
 
-# Yet Another Workspace Toolkit
+#  Yawt
 
-The purpose of this package is to provide a set of tools to help you manage your workspace.
+Yet Another Workspace Toolkit - The purpose of this package is to provide a set of tools to help you manage your workspace.
 
 ## 💾 Installation
 
