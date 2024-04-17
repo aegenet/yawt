@@ -5,6 +5,6 @@ const { cwd } = require('node:process');
 export default rollupDTSConfigurator({
   cwd: cwd(),
   libName: '@aegenet/ya-workspace-toolkit',
-  entryPoint: 'src/index.ts',
+  entryPoint: './src/index.ts',
   nodeExternal: true,
 });

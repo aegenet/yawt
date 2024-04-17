@@ -6,10 +6,10 @@ export default viteConfigurator({
   cwd: dirname(fileURLToPath(import.meta.url)),
   libName: '@aegenet/ya-workspace-toolkit',
   entryPoint: {
-    index: 'src/index.ts',
-    'get-projects-cli': 'src/get-projects-cli.ts',
-    'build-flow-cli': 'src/build-flow-cli.ts',
-    'coverage-merge-cli': 'src/coverage-merge-cli.ts',
+    index: './src/index.ts',
+    'get-projects-cli': './src/get-projects-cli.ts',
+    'build-flow-cli': './src/build-flow-cli.ts',
+    'coverage-merge-cli': './src/coverage-merge-cli.ts',
   },
   nodeExternal: true,
 });
