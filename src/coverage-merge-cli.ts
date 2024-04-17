@@ -4,7 +4,7 @@ import path from 'node:path';
 let folders = process.argv.slice(2);
 
 let coverageBundle = {};
-const buildConfigPath = path.join(__dirname, 'build-flow.config.json');
+const buildConfigPath = path.join(__dirname, 'yawt.config.json');
 const projects = fs.existsSync(buildConfigPath) ? require(buildConfigPath) : [];
 
 if (projects?.length) {

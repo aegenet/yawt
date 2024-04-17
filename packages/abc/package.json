@@ -1,0 +1,14 @@
+{
+  "name": "pipboy2000",
+  "version": "1.0.0",
+  "description": "Something",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {},
+  "author": "Chihiro",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.test"
+  }
+}

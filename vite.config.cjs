@@ -8,7 +8,7 @@ export default viteConfigurator({
   entryPoint: {
     index: './src/index.ts',
     'get-projects-cli': './src/get-projects-cli.ts',
-    'build-flow-cli': './src/build-flow-cli.ts',
+    'yawt-cli': './src/yawt-cli.ts',
     'coverage-merge-cli': './src/coverage-merge-cli.ts',
   },
   nodeExternal: true,

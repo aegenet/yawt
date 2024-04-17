@@ -38,7 +38,7 @@ jobs:
     - name: lint
       run: npm run lint
     - name: test and coverage
-      run: npm run test
+      run: npm run test:coverage
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4.3.0
       env:
@@ -52,7 +52,7 @@ jobs:
         YAWT_NPM_PUBLIC_PUBLISH: 'false'
         YAWT_NPM_PUSH_REGISTRY: https://npm.pkg.github.com/
         YAWT_NPM_NAMESPACE: '@aegenet'
-      run: node ./dist/build-flow-cli.cjs --task="publish" --single
+      run: node ./dist/yawt-cli.cjs --task="publish" --single
     - name: Publish packages npm
       if: github.event_name == 'release'
       env:
@@ -61,7 +61,7 @@ jobs:
         YAWT_NPM_PUBLIC_PUBLISH: 'true'
         YAWT_NPM_PUSH_REGISTRY: https://registry.npmjs.org/
         YAWT_NPM_NAMESPACE: '@aegenet'
-      run: node ./dist/build-flow-cli.cjs --task="publish" --single
+      run: node ./dist/yawt-cli.cjs --task="publish" --single
 
   # Pull Request
   build_pr:
@@ -95,5 +95,5 @@ jobs:
       run: npm run build
     - name: lint
       run: npm run lint
-    - name: test and coverage
+    - name: test
       run: npm run test

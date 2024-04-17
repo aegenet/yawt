@@ -14,7 +14,7 @@
     "prettier"
   ],
   "bin": {
-    "yawt": "./dist/build-flow-cli.cjs",
+    "yawt": "./dist/yawt-cli.cjs",
     "yawt-projects": "./dist/get-projects-cli.cjs"
   },
   "exports": {
