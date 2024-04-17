@@ -6,13 +6,13 @@ describe('viteConfigurator', () => {
     assert.isOk(
       await viteConfigurator({
         cwd: cwd(),
-        libName: '@aegenet/ya-workspace-toolkit',
+        libName: '@aegenet/yawt',
       })
     );
 
     const config = await viteConfigurator({
       cwd: cwd(),
-      libName: '@aegenet/ya-workspace-toolkit',
+      libName: '@aegenet/yawt',
     });
     assert.strictEqual(config.plugins?.length, 1);
   });

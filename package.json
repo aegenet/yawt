@@ -1,5 +1,5 @@
 {
-  "name": "@aegenet/ya-workspace-toolkit",
+  "name": "@aegenet/yawt",
   "description": "Yawt - Yet Another Workspace Toolkit - The purpose of this package is to provide a set of tools to help you manage your workspace.",
   "version": "0.0.0-dev",
   "main": "dist/index.cjs",
@@ -37,7 +37,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "repository": "https://github.com/aegenet/ya-workspace-toolkit",
+  "repository": "https://github.com/aegenet/yawt",
   "dependencies": {
     "@aegenet/ya-node-externals": "^1.0.0",
     "@aegenet/ya-vite-banner": "^1.0.1",

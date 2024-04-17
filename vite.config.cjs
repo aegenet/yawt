@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 export default viteConfigurator({
   cwd: dirname(fileURLToPath(import.meta.url)),
-  libName: '@aegenet/ya-workspace-toolkit',
+  libName: '@aegenet/yawt',
   entryPoint: {
     index: './src/index.ts',
     'get-projects-cli': './src/get-projects-cli.ts',

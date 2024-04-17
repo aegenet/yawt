@@ -43,7 +43,7 @@ jobs:
       uses: codecov/codecov-action@v4.3.0
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        slug: aegenet/ya-workspace-toolkit
+        slug: aegenet/yawt
 
     - name: Publish packages GitHub
       env:

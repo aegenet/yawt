@@ -1,6 +1,6 @@
-[![npm version](https://img.shields.io/npm/v/@aegenet/ya-workspace-toolkit.svg)](https://www.npmjs.com/package/@aegenet/ya-workspace-toolkit)
-[![Build Status](https://github.com/aegenet/ya-workspace-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/aegenet/ya-workspace-toolkit/actions)
-[![codecov](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graph/badge.svg?token=4E9LC0O0X1)](https://codecov.io/gh/aegenet/ya-workspace-toolkit)
+[![npm version](https://img.shields.io/npm/v/@aegenet/yawt.svg)](https://www.npmjs.com/package/@aegenet/yawt)
+[![Build Status](https://github.com/aegenet/yawt/actions/workflows/ci.yml/badge.svg)](https://github.com/aegenet/yawt/actions)
+[![codecov](https://codecov.io/gh/aegenet/yawt/branch/main/graph/badge.svg?token=4E9LC0O0X1)](https://codecov.io/gh/aegenet/yawt)
 <br />
 
 # Yet Another Workspace Toolkit
@@ -10,9 +10,9 @@ The purpose of this package is to provide a set of tools to help you manage your
 ## 💾 Installation
 
 ```shell
-npm i @aegenet/ya-workspace-toolkit@~1 -D
+npm i @aegenet/yawt@~1 -D
 # or
-yarn add @aegenet/ya-workspace-toolkit@~1 -D
+yarn add @aegenet/yawt@~1 -D
 ```
 
 ## 📝 Usage
@@ -35,11 +35,11 @@ yarn add @aegenet/ya-workspace-toolkit@~1 -D
 
 # Coverage
 
-[![codecov](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graph/badge.svg?token=4E9LC0O0X1)](https://codecov.io/gh/aegenet/ya-workspace-toolkit)
+[![codecov](https://codecov.io/gh/aegenet/yawt/branch/main/graph/badge.svg?token=4E9LC0O0X1)](https://codecov.io/gh/aegenet/yawt)
 
-![Coverage sunburst](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graphs/sunburst.svg?token=4E9LC0O0X1)
+![Coverage sunburst](https://codecov.io/gh/aegenet/yawt/branch/main/graphs/sunburst.svg?token=4E9LC0O0X1)
 
-![Coverage tree](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graphs/tree.svg?token=4E9LC0O0X1)
+![Coverage tree](https://codecov.io/gh/aegenet/yawt/branch/main/graphs/tree.svg?token=4E9LC0O0X1)
 
 ## 📝 License
 
