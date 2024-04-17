@@ -9,42 +9,71 @@ const exec = util.promisify(child_process.exec);
 
 const tasks = {
   /** Clean up */
-  clean: (project: BuildFlowProject) => `cd ./packages/${project.name}/ && npm run clean`,
-  /** Delete dependencies */
-  deleteNodeModules: (project: BuildFlowProject) => {
-    const cmd = `node ./node_modules/rimraf/dist/esm/bin.mjs ./packages/${project.name}/node_modules`;
-    return cmd;
+  clean: (project: BuildFlowProject, { single }: BuildFlowOptions) => {
+    const cmds: string[] = [];
+    if (!single) {
+      cmds.push(`cd ./packages/${project.name}/`);
+    } else {
+      cmds.push(`npm run clean`);
+    }
+    return cmds;
+  },
+  /** Delete node modules */
+  deleteNodeModules: (project: BuildFlowProject, { single }: BuildFlowOptions) => {
+    if (single) {
+      return `node ./node_modules/rimraf/dist/esm/bin.mjs ./node_modules`;
+    } else {
+      return `node ./node_modules/rimraf/dist/esm/bin.mjs ./packages/${project.name}/node_modules`;
+    }
   },
   /** Upgrade dependencies */
-  upgrade: (project: BuildFlowProject) => {
-    let cmd = `cd ./packages/${project.name}/ && node ./../../node_modules/rimraf/dist/esm/bin.mjs ./node_modules && node ./../../node_modules/rimraf/dist/esm/bin.mjs ./npm.lock`;
+  upgrade: (project: BuildFlowProject, { single }: BuildFlowOptions) => {
+    if (single) {
+      return `node ./node_modules/rimraf/dist/esm/bin.mjs ./node_modules ./package.json.lock && npm i`;
+    } else {
+      const cmds: string[] = [
+        `cd ./packages/${project.name}/`,
+        `node ./../../node_modules/rimraf/dist/esm/bin.mjs ./node_modules ./package.json.lock`,
+      ];
 
-    project.links?.forEach(link => {
-      cmd += ` && npm link ${link}`;
-    });
+      project.links?.forEach(link => {
+        cmds.push(`npm link ${link}`);
+      });
 
-    cmd += ' && npm i && npm link';
+      cmds.push('npm i', 'npm link');
 
-    return cmd;
+      return cmds;
+    }
   },
   /** Dependencies (npm i & link) */
-  dependencies: (project: BuildFlowProject) => {
-    let cmd = `cd ./packages/${project.name}/`;
+  dependencies: (project: BuildFlowProject, { single }: BuildFlowOptions) => {
+    if (!single) {
+      let cmd = `cd ./packages/${project.name}/`;
 
-    project.links?.forEach(link => {
-      cmd += ` && npm link ${link}`;
-    });
+      project.links?.forEach(link => {
+        cmd += ` && npm link ${link}`;
+      });
 
-    cmd += ' && npm i && npm link';
-
-    return cmd;
+      cmd += ' && npm i && npm link';
+      return cmd;
+    } else {
+      return '';
+    }
   },
   /** Lint */
-  lint: (project: BuildFlowProject) => `cd ./packages/${project.name}/ && npm run lint`,
+  lint: (project: BuildFlowProject, { single }: BuildFlowOptions) => {
+    if (single) {
+      return `npm run lint`;
+    } else {
+      return `cd ./packages/${project.name}/ && npm run lint`;
+    }
+  },
   /** Build */
-  build: (project: BuildFlowProject) => {
+  build: (project: BuildFlowProject, { single }: BuildFlowOptions) => {
     const cmds: string[] = [];
-    cmds.push(`cd ./packages/${project.name}/`);
+    if (!single) {
+      cmds.push(`cd ./packages/${project.name}/`);
+    }
 
     let version;
     if (process.env.GITHUB_REF_TYPE === 'tag') {
@@ -64,7 +93,7 @@ const tasks = {
   },
   /** Test */
   test: (project: BuildFlowProject, options: Required<BuildFlowOptions>) => {
-    const projectPath = path.join(options.rootDir, `./packages/${project.name}`);
+    const projectPath = options.single ? options.rootDir : path.join(options.rootDir, `./packages/${project.name}`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pkgProject = require(path.join(projectPath, 'package.json'));
 
@@ -87,31 +116,31 @@ const tasks = {
       _ensureExports(projectPath, pkgProject.exports, 'default');
     }
 
-    return `cd ./packages/${project.name}/ && npm run test-node`;
+    return options.single ? 'npm run test' : `cd ./packages/${project.name}/ && npm run test`;
   },
   /** Test local */
-  local: (project: BuildFlowProject) => `cd ./packages/${project.name}/ && npm run test-node-local`,
-  /** Publish */
-  publish: (project: BuildFlowProject) => {
-    if (project.publish) {
-      const registry = process.env.NPM_PUSH_REGISTRY || 'https://npm.pkg.github.com/';
-      const cmds = [
-        // Remove devDependencies in npm package
-        `node ./node_modules/json -I -f ./packages/${project.name}/package.json -e "this.devDependencies={};this.scripts={};this.jest=undefined;this.publishConfig['@aegenet:registry']='${registry}';"`,
-        `cd ./packages/${project.name}/`,
-        `npm publish --@aegenet:registry=${registry}${
-          process.env.NPM_PUBLISH_PUBLIC === '1' ? ' --access public' : ''
-        }`,
-      ];
-      return cmds.join(' && ');
+  testLocal: (project: BuildFlowProject, { single }: BuildFlowOptions) => {
+    if (single) {
+      return 'npm run test:local --if-present';
     } else {
-      return '';
+      return `cd ./packages/${project.name}/ && npm run test:local --if-present`;
     }
   },
-  /** Local Publish (yalc) */
-  localPublish: (project: BuildFlowProject) => {
+  /** Publish */
+  publish: (
+    project: BuildFlowProject,
+    { single, npmRegistryURL, npmPublicPublish, npmNamespace }: BuildFlowOptions
+  ) => {
     if (project.publish) {
-      const cmds = [`cd ./packages/${project.name}/`, `yalc installations clean && yalc publish`];
+      const registry = npmRegistryURL || 'https://npm.pkg.github.com/';
+      const pkgPath = single ? './' : `./packages/${project.name}/`;
+      const registryNS = npmNamespace ? npmNamespace + ':registry' : 'registry';
+      const cmds = [
+        // Remove devDependencies in npm package
+        `node ./node_modules/json -I -f ${pkgPath}package.json -e "this.devDependencies={};this.scripts={};this.jest=undefined;this.publishConfig||={};this.publishConfig['${registryNS}']='${registry}';"`,
+        `cd ${pkgPath}`,
+        `npm publish --${registryNS}=${registry}${npmPublicPublish ? ' --access public' : ''}`,
+      ];
       return cmds.join(' && ');
     } else {
       return '';
@@ -143,12 +172,30 @@ export async function buildFlow(options: BuildFlowOptions): Promise<void> {
     const startAt = new Date();
     console.log(`[BUILD-FLOW] ${taskMode} starting at ${startAt.toLocaleString()}...`);
     const task = tasks[taskMode];
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const projects = require(path.resolve(options.configDirectory, options.configFileName)) as {
+    let projects: {
       name: string;
       links?: string[];
       publish?: boolean;
     }[];
+
+    if (options.single) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const currentPkg = require(path.resolve(options.rootDir, 'package.json'));
+      projects = [
+        {
+          name: currentPkg.name,
+          links: [],
+          publish: options.publish,
+        },
+      ];
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      projects = require(path.resolve(options.configDirectory, options.configFileName)) as {
+        name: string;
+        links?: string[];
+        publish?: boolean;
+      }[];
+    }
 
     const workers = options.workers;
 
@@ -161,9 +208,9 @@ export async function buildFlow(options: BuildFlowOptions): Promise<void> {
 
       console.log(`[BUILD-FLOW] ${taskMode}/${project.name}...`);
       const cmd = task(project, options as Required<BuildFlowOptions>);
-      if (cmd) {
+      if (cmd?.length) {
         packProms.push(
-          exec(cmd, {
+          exec(Array.isArray(cmd) ? cmd.join(' && ') : cmd, {
             cwd: options.rootDir,
             maxBuffer: undefined,
           })
@@ -195,8 +242,8 @@ export async function buildFlow(options: BuildFlowOptions): Promise<void> {
       const project = seqProjects[i];
       console.log(`[BUILD-FLOW] ${taskMode}/${project.name}...`);
       const cmd = task(project, options as Required<BuildFlowOptions>);
-      if (cmd) {
-        child_process.execSync(cmd, {
+      if (cmd?.length) {
+        child_process.execSync(Array.isArray(cmd) ? cmd.join(' && ') : cmd, {
           cwd: options.rootDir,
           stdio: 'inherit',
         });
@@ -221,5 +268,10 @@ export type BuildFlowOptions = {
   configFileName?: string;
   workers?: number;
   silent?: boolean;
+  single?: boolean;
+  npmRegistryURL?: string;
+  npmPublicPublish?: boolean;
+  npmNamespace?: string;
+  publish?: boolean;
 };
 export type BuildFlowTaskNames = keyof typeof tasks;

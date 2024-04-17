@@ -72,9 +72,7 @@ export async function viteConfigurator({
         name: libName,
         fileName: outputName || 'index',
       }
-    : {
-        entry: entryPoint,
-      };
+    : undefined;
 
   return defineConfig({
     test: {
@@ -95,7 +93,7 @@ export async function viteConfigurator({
       }),
     ],
     build: {
-      outDir: `./dist/${folder}`,
+      outDir: resolve(cwd, `./dist/${folder}`),
       lib,
       minify: minifyKeepClassNames === true ? 'terser' : 'esbuild',
       terserOptions:
@@ -105,6 +103,7 @@ export async function viteConfigurator({
             }
           : undefined,
       rollupOptions: {
+        input: !asSingleEntryPoint ? entryPoint : undefined,
         // input: resolve(cwd, `src/${entryPoint || 'index.ts'}`),
         // make sure to externalize deps that shouldn't be bundled
         // into your library

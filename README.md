@@ -1,6 +1,6 @@
 [![npm version](https://img.shields.io/npm/v/@aegenet/ya-workspace-toolkit.svg)](https://www.npmjs.com/package/@aegenet/ya-workspace-toolkit)
 [![Build Status](https://github.com/aegenet/ya-workspace-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/aegenet/ya-workspace-toolkit/actions)
-[![codecov](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graph/badge.svg?token=NRN5ODOY91)](https://codecov.io/gh/aegenet/ya-workspace-toolkit)
+[![codecov](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graph/badge.svg?token=4E9LC0O0X1)](https://codecov.io/gh/aegenet/ya-workspace-toolkit)
 <br />
 
 # Yet Another Workspace Toolkit
@@ -35,11 +35,11 @@ yarn add @aegenet/ya-workspace-toolkit@~1 -D
 
 # Coverage
 
-[![codecov](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graph/badge.svg?token=NRN5ODOY91)](https://codecov.io/gh/aegenet/ya-workspace-toolkit)
+[![codecov](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graph/badge.svg?token=4E9LC0O0X1)](https://codecov.io/gh/aegenet/ya-workspace-toolkit)
 
-![Coverage sunburst](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graphs/sunburst.svg?token=NRN5ODOY91)
+![Coverage sunburst](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graphs/sunburst.svg?token=4E9LC0O0X1)
 
-![Coverage tree](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graphs/tree.svg?token=NRN5ODOY91)
+![Coverage tree](https://codecov.io/gh/aegenet/ya-workspace-toolkit/branch/main/graphs/tree.svg?token=4E9LC0O0X1)
 
 ## 📝 License
 
