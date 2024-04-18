@@ -7,6 +7,13 @@ describe('yawt', () => {
       task: 'lint',
     });
   });
+
+  test('build', async () => {
+    await yawt({
+      task: 'build',
+    });
+  });
+
   test('publish', async () => {
     await expect(() =>
       yawt({

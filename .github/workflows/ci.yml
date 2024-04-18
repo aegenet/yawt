@@ -33,8 +33,8 @@ jobs:
         CI: true
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: rm -rf node_modules && npm i
-    - name: build
-      run: npm run build
+    - name: version & build
+      run: node ./dist/yawt-cli.cjs --task="build" --single
     - name: lint
       run: npm run lint
     - name: test and coverage
@@ -87,8 +87,8 @@ jobs:
         CI: true
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN  }}
       run: rm -rf node_modules && npm i
-    - name: build
-      run: npm run build
+    - name: version & build
+      run: node ./dist/yawt-cli.cjs --task="build" --single
     - name: lint
       run: npm run lint
     - name: test

@@ -65,7 +65,7 @@
     "build:dts": "rollup -c rollup.config.dts.cjs --bundleConfigAsCjs",
     "build:vite": "vite build -c ./vite.config.cjs",
     "test": "vitest run",
-    "test:watch": "vitest",
+    "test:watch": "vitest --test-timeout=60000",
     "test:coverage": "vitest run --coverage --coverage.provider=v8 --coverage.extension=.ts"
   },
   "devDependencies": {

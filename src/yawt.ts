@@ -99,6 +99,10 @@ const tasks = {
 
     const version = npmVersion;
     if (version) {
+      if (version === '0.0.0-dev') {
+        throw new Error('Invalid version 0.0.0-dev');
+      }
+
       const jsonPath = await _getJSONLibPath(rootDir!);
       project.dependencies?.forEach(dep => {
         cmds.push(`${jsonPath} -I -f ./package.json -e "this.dependencies['${dep}']='~${version}';"`);
@@ -109,7 +113,7 @@ const tasks = {
       cmds.push(`npm version "${version}"`);
     }
 
-    cmds.push('npm build');
+    cmds.push('npm run build');
 
     return cmds.join(' && ');
   },
