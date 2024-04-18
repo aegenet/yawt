@@ -58,8 +58,8 @@
   ],
   "scripts": {
     "clean": "rimraf ./build ./dist ./coverage ./.nyc_output",
-    "lint": "eslint ./src/**/*.{js,ts,tsx}",
-    "lint:fix": "/eslint ./src/**/*.{js,ts,tsx} --fix",
+    "lint": "eslint \"./src/**/*.{js,ts,tsx}\"",
+    "lint:fix": "eslint \"./src/**/*.{js,ts,tsx}\" --fix",
     "build": "npm run clean && npm run build:tsc && npm run build:dts && npm run build:vite",
     "build:tsc": "node ./node_modules/typescript/bin/tsc",
     "build:dts": "rollup -c rollup.config.dts.cjs --bundleConfigAsCjs",

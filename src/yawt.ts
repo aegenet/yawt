@@ -145,15 +145,15 @@ const tasks = {
     if (pkgProject.exports['.']) {
       for (const root in pkgProject.exports) {
         if (root === '.') {
-          _ensureExports(projectPath, pkgProject.exports[root], 'node');
-          _ensureExports(projectPath, pkgProject.exports[root], 'default');
+          await _ensureExports(projectPath, pkgProject.exports[root], 'node');
+          await _ensureExports(projectPath, pkgProject.exports[root], 'default');
         } else {
-          _ensureExports(projectPath, pkgProject.exports, root);
+          await _ensureExports(projectPath, pkgProject.exports, root);
         }
       }
     } else {
-      _ensureExports(projectPath, pkgProject.exports, 'node');
-      _ensureExports(projectPath, pkgProject.exports, 'default');
+      await _ensureExports(projectPath, pkgProject.exports, 'node');
+      await _ensureExports(projectPath, pkgProject.exports, 'default');
     }
 
     return options.single ? 'npm run test --if-present' : `cd ./packages/${project.name}/ && npm run test --if-present`;

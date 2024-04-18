@@ -3,4 +3,4 @@
 const { eslintConfigurator } = require('./build/eslint.configurator');
 
 // eslint-disable-next-line no-undef
-module.exports = eslintConfigurator();
+module.exports = eslintConfigurator({ noConsole: false });
