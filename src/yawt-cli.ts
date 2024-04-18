@@ -10,7 +10,18 @@ const cliParams = argv2Object<{
   npmPublicPublish: boolean;
   npmNamespace: string;
   publish: boolean;
+  npmVersion: string;
 }>(process.argv.slice(2));
+
+let npmVersion: string | undefined = cliParams.npmVersion?.trim();
+if (!npmVersion) {
+  if (process.env.GITHUB_REF_TYPE === 'tag') {
+    npmVersion = process.env.GITHUB_REF_NAME;
+  } else if (process.env.GITHUB_REF_NAME) {
+    // workflow github
+    npmVersion = `0.${new Date().getTime()}.0-dev`;
+  }
+}
 
 yawt({
   task: cliParams.task,
@@ -20,6 +31,7 @@ yawt({
   npmRegistryURL: cliParams.npmRegistryURL || process.env.YAWT_NPM_PUSH_REGISTRY,
   npmPublicPublish: cliParams.npmPublicPublish || process.env.YAWT_NPM_PUBLIC_PUBLISH === 'true',
   npmNamespace: cliParams.npmNamespace || process.env.YAWT_NPM_NAMESPACE,
+  npmVersion: npmVersion,
 })
   .then(() => {
     process.exit(0);

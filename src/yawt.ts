@@ -19,28 +19,50 @@ const tasks = {
     return cmds;
   },
   /** Delete node modules */
-  deleteNodeModules: (project: YawtProject, { single }: YawtOptions) => {
+  deleteNodeModules: async (project: YawtProject, { single, rootDir }: YawtOptions) => {
+    const rimrafPath = await _getRimrafLibPath(rootDir!);
     if (single) {
-      return `node ./node_modules/rimraf/dist/esm/bin.mjs ./node_modules`;
+      return `node ${rimrafPath} ./node_modules`;
     } else {
-      return `node ./node_modules/rimraf/dist/esm/bin.mjs ./packages/${project.name}/node_modules`;
+      return `node ${rimrafPath} ./packages/${project.name}/node_modules`;
     }
   },
   /** Upgrade dependencies */
-  upgrade: (project: YawtProject, { single }: YawtOptions) => {
+  upgrade: async (project: YawtProject, { single, rootDir }: YawtOptions) => {
+    const rimrafPath = await _getRimrafLibPath(rootDir!);
     if (single) {
-      return `node ./node_modules/rimraf/dist/esm/bin.mjs ./node_modules ./package.json.lock && npm i`;
+      return `node ${rimrafPath} ./node_modules ./package.json.lock && npm i`;
     } else {
       const cmds: string[] = [
+        `node ${rimrafPath} ./packages/${project.name}/node_modules ./packages/${project.name}/package.json.lock`,
         `cd ./packages/${project.name}/`,
-        `node ./../../node_modules/rimraf/dist/esm/bin.mjs ./node_modules ./package.json.lock`,
       ];
 
+      cmds.push('npm i', 'npm upgrade');
       project.links?.forEach(link => {
         cmds.push(`npm link ${link}`);
       });
+      cmds.push('npm link');
 
-      cmds.push('npm i', 'npm link');
+      return cmds;
+    }
+  },
+  /** Upgrade dependencies */
+  upgradeForce: async (project: YawtProject, { single, rootDir }: YawtOptions) => {
+    const rimrafPath = await _getRimrafLibPath(rootDir!);
+    if (single) {
+      return `node ${rimrafPath} ./node_modules ./package.json.lock && npm i`;
+    } else {
+      const cmds: string[] = [
+        `node ${rimrafPath} ./packages/${project.name}/node_modules ./packages/${project.name}/package.json.lock`,
+        `cd ./packages/${project.name}/`,
+      ];
+
+      cmds.push('npm i', 'npm upgrade --latest');
+      project.links?.forEach(link => {
+        cmds.push(`npm link ${link}`);
+      });
+      cmds.push('npm link');
 
       return cmds;
     }
@@ -48,14 +70,14 @@ const tasks = {
   /** Dependencies (npm i & link) */
   dependencies: (project: YawtProject, { single }: YawtOptions) => {
     if (!single) {
-      let cmd = `cd ./packages/${project.name}/`;
+      const cmds = [`cd ./packages/${project.name}/`, 'npm i'];
 
-      project.links?.forEach(link => {
-        cmd += ` && npm link ${link}`;
-      });
+      if (project.links?.length) {
+        cmds.push(`npm link ${project.links.join(' ')}`);
+      }
 
-      cmd += ' && npm i && npm link';
-      return cmd;
+      cmds.push('npm link');
+      return cmds;
     } else {
       return '';
     }
@@ -69,21 +91,21 @@ const tasks = {
     }
   },
   /** Build */
-  build: (project: YawtProject, { single }: YawtOptions) => {
+  build: (project: YawtProject, { single, npmVersion, rootDir }: YawtOptions) => {
     const cmds: string[] = [];
     if (!single) {
       cmds.push(`cd ./packages/${project.name}/`);
     }
 
-    let version;
-    if (process.env.GITHUB_REF_TYPE === 'tag') {
-      version = process.env.GITHUB_REF_NAME;
-    } else if (process.env.GITHUB_REF_NAME) {
-      // workflow github
-      version = `0.${new Date().getTime()}.0-dev`;
-    }
-
+    const version = npmVersion;
     if (version) {
+      const jsonPath = _getJSONLibPath(rootDir!);
+      project.dependencies?.forEach(dep => {
+        cmds.push(`${jsonPath} -I -f ./package.json -e "this.dependencies['${dep}']='~${version}';"`);
+      });
+      project.devDependencies?.forEach(dep => {
+        cmds.push(`${jsonPath} -I -f ./package.json -e "this.devDependencies['${dep}']='~${version}';"`);
+      });
       cmds.push(`npm version "${version}"`);
     }
 
@@ -139,16 +161,7 @@ const tasks = {
     const registry = npmRegistryURL || 'https://npm.pkg.github.com/';
     const pkgPath = single ? './' : `./packages/${project.name}/`;
     const registryNS = npmNamespace ? npmNamespace + ':registry' : 'registry';
-    let jsonPath = path.resolve(rootDir!, './node_modules/json');
-    if (
-      !(await fs
-        .access(jsonPath)
-        .then(() => true)
-        .catch(() => false))
-    ) {
-      // try a fallback
-      jsonPath = path.resolve(process.cwd(), './node_modules/json');
-    }
+    const jsonPath = _getJSONLibPath(rootDir!);
 
     const cmds = [
       // Remove devDependencies in npm package
@@ -294,6 +307,23 @@ export async function yawt(options: YawtOptions): Promise<void> {
   }
 }
 
+const _getJSONLibPath = _getLibPath.bind(null, './node_modules/json');
+const _getRimrafLibPath = _getLibPath.bind(null, './node_modules/rimraf/dist/esm/bin.mjs');
+
+async function _getLibPath(libPath: string, rootDir: string): Promise<string> {
+  let jsonPath = path.resolve(rootDir, libPath);
+  if (
+    !(await fs
+      .access(jsonPath)
+      .then(() => true)
+      .catch(() => false))
+  ) {
+    // try a fallback
+    jsonPath = path.resolve(process.cwd(), libPath);
+  }
+  return jsonPath;
+}
+
 export type YawtOptions = {
   task: YawtTaskNames;
   rootDir?: string;
@@ -305,5 +335,6 @@ export type YawtOptions = {
   npmRegistryURL?: string;
   npmPublicPublish?: boolean;
   npmNamespace?: string;
+  npmVersion?: string;
 };
 export type YawtTaskNames = keyof typeof tasks;
