@@ -15,7 +15,73 @@ npm i @aegenet/yawt@~1 -D
 yarn add @aegenet/yawt@~1 -D
 ```
 
-## 📝 Usage
+## 📝 Config files (./)
+
+- `./.build/yawt.config.json`
+```json
+[{
+  "name": "lib",
+  "links": [],
+  "dependencies": [],
+  "publish": false
+}, {
+  "name": "app",
+  "links": ["lib"],
+  "dependencies": ["lib"],
+  "publish": true
+}]
+```
+
+- `eslint.config.cjs`
+```javascript
+const { eslintConfigurator } = require('@aegenet/yawt');
+module.exports = eslintConfigurator();
+```
+
+- `prettier.config.cjs`
+```javascript
+const { prettierConfigurator } = require('@aegenet/yawt');
+module.exports = prettierConfigurator();
+```
+
+- `vite.config.mjs`
+```javascript
+import { viteConfigurator } from '@aegenet/yawt';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+export default viteConfigurator({
+  cwd: dirname(fileURLToPath(import.meta.url)),
+  libName: '@sample/lib',
+  entryPoint: './src/index.ts',
+  nodeExternal: true,
+});
+```
+
+- `rollup.config.dts.cjs`
+```javascript
+const { rollupDTSConfigurator } = require('@aegenet/yawt');
+const { cwd } = require('node:process');
+export default rollupDTSConfigurator({
+  cwd: cwd(),
+  libName: '@sample/lib',
+  entryPoint: './src/index.ts',
+  nodeExternal: true,
+});
+```
+
+- `tsconfig.json`
+```json
+{
+  "extends": "./node_modules/@aegenet/yawt/tsconfig.base.json",
+  "exclude": [
+    "./node_modules",
+  ],
+  "include": [
+    "src"
+  ]
+}
+```
 
 ## 🖹 Exports
 
@@ -25,7 +91,7 @@ yarn add @aegenet/yawt@~1 -D
 | `prettierConfigurator` | Configuration for prettier |
 | `viteConfigurator` | Configuration for vite (and vitest) |
 | `rollupDTSConfigurator` | Configuration for generate typings  |
-<!-- | `coverageConfiguration` | Configuration for coverage | -->
+| `yawt` | Yawt API  |
 
 ## CLI
 

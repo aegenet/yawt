@@ -44,5 +44,11 @@ describe('argv2Object', () => {
     expect(result).toEqual(expected);
   });
 
+  it('should handle boolean arguments', () => {
+    const argv = ['--verbose=true', '--debug=false'];
+    const result = argv2Object(argv);
+    const expected = { verbose: true, debug: false };
+    expect(result).toEqual(expected);
+  });
   // Add more test cases as needed
 });
