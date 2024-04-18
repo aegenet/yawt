@@ -34,7 +34,7 @@ jobs:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: rm -rf node_modules && npm i
     - name: build
-      run: npm run build build
+      run: npm run build
     - name: lint
       run: npm run lint
     - name: test and coverage
