@@ -91,7 +91,7 @@ const tasks = {
     }
   },
   /** Build */
-  build: (project: YawtProject, { single, npmVersion, rootDir }: YawtOptions) => {
+  build: async (project: YawtProject, { single, npmVersion, rootDir }: YawtOptions) => {
     const cmds: string[] = [];
     if (!single) {
       cmds.push(`cd ./packages/${project.name}/`);
@@ -99,7 +99,7 @@ const tasks = {
 
     const version = npmVersion;
     if (version) {
-      const jsonPath = _getJSONLibPath(rootDir!);
+      const jsonPath = await _getJSONLibPath(rootDir!);
       project.dependencies?.forEach(dep => {
         cmds.push(`${jsonPath} -I -f ./package.json -e "this.dependencies['${dep}']='~${version}';"`);
       });
@@ -161,7 +161,7 @@ const tasks = {
     const registry = npmRegistryURL || 'https://npm.pkg.github.com/';
     const pkgPath = single ? './' : `./packages/${project.name}/`;
     const registryNS = npmNamespace ? npmNamespace + ':registry' : 'registry';
-    const jsonPath = _getJSONLibPath(rootDir!);
+    const jsonPath = await _getJSONLibPath(rootDir!);
 
     const cmds = [
       // Remove devDependencies in npm package
