@@ -90,8 +90,8 @@ const tasks = {
       return `cd ./packages/${project.name}/ && npm run lint --if-present`;
     }
   },
-  /** Build */
-  build: async (project: YawtProject, { single, npmVersion, rootDir }: YawtOptions) => {
+  /** Version */
+  version: async (project: YawtProject, { single, npmVersion, rootDir }: YawtOptions) => {
     const cmds: string[] = [];
     if (!single) {
       cmds.push(`cd ./packages/${project.name}/`);
@@ -111,6 +111,15 @@ const tasks = {
         cmds.push(`${jsonPath} -I -f ./package.json -e "this.devDependencies['${dep}']='~${version}';"`);
       });
       cmds.push(`npm version "${version}"`);
+    }
+
+    return cmds.join(' && ');
+  },
+  /** Build */
+  build: (project: YawtProject, { single }: YawtOptions) => {
+    const cmds: string[] = [];
+    if (!single) {
+      cmds.push(`cd ./packages/${project.name}/`);
     }
 
     cmds.push('npm run build');

@@ -14,6 +14,12 @@ describe('yawt', () => {
     });
   });
 
+  test('version', async () => {
+    await yawt({
+      task: 'version',
+    });
+  });
+
   test('publish', async () => {
     await expect(() =>
       yawt({
