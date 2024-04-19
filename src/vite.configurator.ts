@@ -1,6 +1,6 @@
 // vite.config.js
 import { resolve } from 'node:path';
-import { type InlineConfig, defineConfig } from 'vite';
+import { type InlineConfig, defineConfig, type Plugin } from 'vite';
 import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
@@ -20,6 +20,7 @@ export async function viteConfigurator({
   globals = {},
   minifyKeepClassNames = false,
   test,
+  plugins = [],
 }: {
   /** Working directory */
   cwd?: string;
@@ -57,6 +58,7 @@ export async function viteConfigurator({
    */
   minifyKeepClassNames?: boolean;
   test?: Omit<InlineConfig, 'server' | 'css'>;
+  plugins?: Plugin[];
 }) {
   folder = folder ? folder + '/' : '';
   const dependencies: Array<string | RegExp> = nodeExternal ? await nodeExternals(cwd) : [];
@@ -91,6 +93,7 @@ export async function viteConfigurator({
         entryOnly: true,
         test: /cli\.(js|ts|cjs|mjs|.umd.js)$/,
       }),
+      ...plugins,
     ],
     build: {
       outDir: resolve(cwd, `./dist/${folder}`),
