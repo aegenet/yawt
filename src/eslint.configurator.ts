@@ -1,6 +1,7 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import type { rules as eslintRules } from '@typescript-eslint/eslint-plugin';
 import globals from 'globals';
 
 /**
@@ -11,7 +12,14 @@ export function eslintConfigurator({
   namingConvention = false,
   type = 'node',
   cwd = process.cwd(),
-}: { type?: 'node' | 'browser'; cwd?: string; noConsole?: boolean; namingConvention?: boolean } = {}) {
+  rules = {},
+}: {
+  type?: 'node' | 'browser';
+  cwd?: string;
+  noConsole?: boolean;
+  namingConvention?: boolean;
+  rules?: typeof eslintRules;
+} = {}) {
   return tseslint.config(eslint.configs.recommended, ...tseslint.configs.recommended, eslintPluginPrettierRecommended, {
     // files: ['*.ts', '*.tsx'],
     languageOptions: {
@@ -32,8 +40,9 @@ export function eslintConfigurator({
       '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
       '@typescript-eslint/no-floating-promises': ['error'],
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { args: 'after-used', ignoreRestSiblings: true }],
       '@typescript-eslint/naming-convention': namingConvention
         ? [
             'error',
@@ -98,6 +107,7 @@ export function eslintConfigurator({
       //     },
       //   },
       // ],
+      ...rules,
     },
   });
 }
