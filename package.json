@@ -19,14 +19,17 @@
   },
   "exports": {
     "node": {
+      "types": "./dist/bundle.d.ts",
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     },
     "default": {
+      "types": "./dist/bundle.d.ts",
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     }
   },
+  "types": "./dist/bundle.d.ts",
   "typings": "./dist/bundle.d.ts",
   "author": "Alexandre Genet",
   "license": "MIT",
@@ -39,8 +42,8 @@
   },
   "repository": "https://github.com/aegenet/yawt",
   "dependencies": {
-    "@aegenet/ya-node-externals": "^1.0.0",
-    "@aegenet/ya-vite-banner": "^1.0.1",
+    "@aegenet/ya-node-externals": "^1.0.1",
+    "@aegenet/ya-vite-banner": "^1.0.2",
     "@eslint/js": "^9.0.0",
     "@vitest/coverage-v8": "^1.5.0",
     "eslint-config-prettier": "^9.1.0",
@@ -58,12 +61,12 @@
   ],
   "scripts": {
     "clean": "rimraf ./build ./dist ./coverage ./.nyc_output",
-    "lint": "eslint \"./src/**/*.{js,ts,tsx}\"",
-    "lint:fix": "eslint \"./src/**/*.{js,ts,tsx}\" --fix",
+    "lint": "eslint \"./src/**/*.{js,mts,ts,tsx}\"",
+    "lint:fix": "eslint \"./src/**/*.{js,mts,ts,tsx}\" --fix",
     "build": "npm run clean && npm run build:tsc && npm run build:dts && npm run build:vite",
     "build:tsc": "node ./node_modules/typescript/bin/tsc",
     "build:dts": "rollup -c rollup.config.dts.cjs --bundleConfigAsCjs",
-    "build:vite": "vite build -c ./vite.config.cjs",
+    "build:vite": "vite build --emptyOutDir=true -c ./vite.config.cjs && vite build --emptyOutDir=false -c ./vite.yawt-cli.config.cjs && vite build --emptyOutDir=false -c ./vite.get-projects.config.cjs && vite build --emptyOutDir=false -c ./vite.coverage-merge-cli.config.cjs",
     "test": "vitest run",
     "test:watch": "vitest --test-timeout=60000",
     "test:coverage": "vitest run --coverage --coverage.provider=v8 --coverage.extension=.ts"
