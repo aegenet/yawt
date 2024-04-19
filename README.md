@@ -10,9 +10,9 @@ Yet Another Workspace Toolkit - The purpose of this package is to provide a set 
 ## 💾 Installation
 
 ```shell
-npm i @aegenet/yawt@~1 -D
+npm i @aegenet/yawt -D
 # or
-yarn add @aegenet/yawt@~1 -D
+yarn add @aegenet/yawt -D
 ```
 
 ## 📝 Config files (./)
@@ -95,8 +95,31 @@ export default rollupDTSConfigurator({
 
 ## CLI
 
+```shell
+# With workspace
+yawt --task=build
+# or without workspace
+yawt --task=build --single
+```
 
-## 📚 Examples
+The selected task will be executed on all projects in the workspace.
+
+| Task | Description |
+| --- | --- |
+| `version` | Apply version to all projects. |
+| `build` | `npm run build` |
+| `test` | check package exports && `npm run test` |
+| `lint` | `npm run lint` |
+| `dependencies` | `npm i` & `npm link` all `links` |
+| `upgrade` | remove `./node_modules`, `package-lock.json` & `npm i` |
+| `publish` | remove devDependencies, scripts & `npm publish` |
+
+| Task | Description |
+| --- | --- |
+| `upgradeForce` | remove `./node_modules`, `package-lock.json` & `npm upgrade --latest` |
+| `clean` | `npm run clean` |
+| `deleteNodeModules` | Remove `./node_modules` |
+| `testLocal` | `npm run test:local` |
 
 
 # Coverage
