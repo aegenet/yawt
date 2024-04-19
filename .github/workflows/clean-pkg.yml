@@ -1,0 +1,32 @@
+name: Clean Packages
+
+on:
+  push:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4.0.2
+        with:
+          node-version: 20.x
+          registry-url: 'https://npm.pkg.github.com'
+          # Defaults to the user or organization that owns the workflow file
+          scope: '@aegenet'
+      - name: Get projects and set env
+        run: echo "DELETE_PACKAGE_NAMES=$(node ./.build/get-projects.js)" >> $GITHUB_ENV
+      - name: Delete old dev packages
+        uses: aegenet/gh-delete-package-versions@v5.4.1
+        with:
+          package-names: '@aegenet/yawt'
+          package-type: 'npm'
+          min-versions-to-keep: 10
+          include-versions: '^999\.|\-dev$'
+          token: ${{ secrets.DELETE_PACKAGES_TOKEN }}
