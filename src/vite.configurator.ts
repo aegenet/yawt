@@ -5,6 +5,7 @@ import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
 import { cwd as processCwd } from 'node:process';
+import { access, readFile } from 'node:fs/promises';
 
 /**
  * Vite Configuration
@@ -43,7 +44,7 @@ export async function viteConfigurator({
   /**
    * node external? (boolean)
    */
-  nodeExternal?: boolean;
+  nodeExternal?: boolean | Parameters<typeof nodeExternals>[1];
   /**
    * rollup external (string[])
    */
@@ -61,9 +62,25 @@ export async function viteConfigurator({
   plugins?: Plugin[];
 }) {
   folder = folder ? folder + '/' : '';
-  const dependencies: Array<string | RegExp> = nodeExternal ? await nodeExternals(cwd) : [];
-  if (dependencies.length) {
-    console.log(`FYI: your project depends to ${dependencies.length} packages.`);
+
+  let dependencies: Array<string | RegExp> = [];
+  if (nodeExternal) {
+    const nodeExtParams = typeof nodeExternal !== 'boolean' ? nodeExternal : {};
+    dependencies = await nodeExternals(cwd, nodeExtParams);
+
+    if (
+      (await access(resolve(cwd, '../../package.json'))
+        .then(() => true)
+        .catch(() => false)) &&
+      JSON.parse(await readFile(resolve(cwd, '../../package.json'), 'utf-8')).workspaces?.length
+    ) {
+      // Workspace
+      dependencies = dependencies.concat(await nodeExternals(cwd, nodeExtParams));
+    }
+
+    if (dependencies.length) {
+      console.log(`FYI: your project depends to ${dependencies.length} packages.`);
+    }
   }
 
   const asSingleEntryPoint = typeof entryPoint === 'string';
@@ -110,7 +127,9 @@ export async function viteConfigurator({
         // input: resolve(cwd, `src/${entryPoint || 'index.ts'}`),
         // make sure to externalize deps that shouldn't be bundled
         // into your library
-        external: nodeExternal ? dependencies.concat([/^node:/]).concat(external || []) : external || [],
+        external: nodeExternal
+          ? dependencies.concat([/node_modules/, /^node:/]).concat(external || [])
+          : external || [],
         output: [
           {
             name: libName,
