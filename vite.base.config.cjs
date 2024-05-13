@@ -20,8 +20,8 @@ export function viteConfig(entryPoint) {
                 return `import * as ${p1} from 'synckit'`;
               })
               // Remove the path prefix from node_modules imports
-              .replace(/"[\.\/]+\/node_modules\//gi, () => {
-                return '"';
+              .replace(/ from "[\.\/]+\/node_modules\//gi, () => {
+                return ' from "';
               });
           }
         },
