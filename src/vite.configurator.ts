@@ -22,6 +22,7 @@ export async function viteConfigurator({
   minifyKeepClassNames = false,
   test,
   plugins = [],
+  makeAbsoluteExternalsRelative = false,
 }: {
   /** Working directory */
   cwd?: string;
@@ -45,6 +46,11 @@ export async function viteConfigurator({
    * node external? (boolean)
    */
   nodeExternal?: boolean | Parameters<typeof nodeExternals>[1];
+  /**
+   * make absolute externals relative
+   * @default false
+   */
+  makeAbsoluteExternalsRelative?: boolean;
   /**
    * rollup external (string[])
    */
@@ -130,6 +136,7 @@ export async function viteConfigurator({
         external: nodeExternal
           ? dependencies.concat([/node_modules/, /^node:/]).concat(external || [])
           : external || [],
+        makeAbsoluteExternalsRelative,
         output: [
           {
             name: libName,
