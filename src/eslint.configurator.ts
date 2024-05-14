@@ -1,6 +1,8 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
 import type { rules as eslintRules } from '@typescript-eslint/eslint-plugin';
 import globals from 'globals';
 
