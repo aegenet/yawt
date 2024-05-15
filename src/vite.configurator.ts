@@ -6,6 +6,7 @@ import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
 import { cwd as processCwd } from 'node:process';
 import { access, readFile } from 'node:fs/promises';
+import type { InputPluginOption } from 'rollup';
 
 /**
  * Vite Configuration
@@ -23,6 +24,7 @@ export async function viteConfigurator({
   test,
   plugins = [],
   makeAbsoluteExternalsRelative = false,
+  rollupPlugins = undefined,
 }: {
   /** Working directory */
   cwd?: string;
@@ -66,6 +68,7 @@ export async function viteConfigurator({
   minifyKeepClassNames?: boolean;
   test?: Omit<InlineConfig, 'server' | 'css'>;
   plugins?: Plugin[];
+  rollupPlugins?: InputPluginOption;
 }) {
   folder = folder ? folder + '/' : '';
 
@@ -137,6 +140,7 @@ export async function viteConfigurator({
           ? dependencies.concat([/node_modules/, /^node:/]).concat(external || [])
           : external || [],
         makeAbsoluteExternalsRelative,
+        plugins: rollupPlugins,
         output: [
           {
             name: libName,

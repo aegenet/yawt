@@ -10,6 +10,7 @@ export async function rollupDTSConfigurator(options: {
   nodeExternal?: boolean | Parameters<typeof nodeExternals>[1];
   external?: string[];
   globals?: Record<string, string>;
+  plugins?: PluginImpl[];
 }): Promise<MergedRollupOptions> {
   const folder = options.folder ? options.folder + '/' : '';
   let dependencies: Array<string | RegExp> = [];
@@ -42,6 +43,9 @@ export async function rollupDTSConfigurator(options: {
         globals: options.globals || {},
       },
     ],
-    plugins: [((dts as unknown as { default: PluginImpl }).default || dts)()],
+    plugins: [
+      ...(options.plugins?.length ? options.plugins : []),
+      ((dts as unknown as { default: PluginImpl }).default || dts)(),
+    ],
   };
 }
