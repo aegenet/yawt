@@ -5,8 +5,6 @@
 
 #  Yawt
 
-<img src="./doc/logo_yawt_128.png">
-
 Yet Another Workspace Toolkit - The purpose of this package is to provide a set of tools to help you manage your workspace.
 
 ## 💾 Installation
