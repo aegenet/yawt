@@ -67,6 +67,8 @@
     "build:tsc": "node ./node_modules/typescript/bin/tsc",
     "build:dts": "rollup -c rollup.config.dts.cjs --bundleConfigAsCjs",
     "build:vite": "vite build --emptyOutDir=true -c ./vite.config.cjs && vite build --emptyOutDir=false -c ./vite.yawt-cli.config.cjs && vite build --emptyOutDir=false -c ./vite.get-projects.config.cjs && vite build --emptyOutDir=false -c ./vite.coverage-merge-cli.config.cjs",
+    "test:build:vite:mjs": "vite build --emptyOutDir=false -c ./vite.test.config.mjs",
+    "test:build:vite:cjs": "vite build --emptyOutDir=false -c ./vite.test.config.cjs",
     "test": "vitest run",
     "test:watch": "vitest --test-timeout=60000",
     "test:coverage": "vitest run --coverage --coverage.provider=v8 --coverage.extension=.ts"

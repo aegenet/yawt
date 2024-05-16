@@ -1,10 +1,8 @@
-import { viteConfigurator } from './build/vite.configurator';
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { viteConfigurator } from '../dist/index.mjs';
 
-export function viteConfig(entryPoint) {
+export function viteConfig(entryPoint, cwd) {
   return viteConfigurator({
-    cwd: dirname(fileURLToPath(import.meta.url)),
+    cwd,
     libName: '@aegenet/yawt',
     entryPoint: entryPoint,
     nodeExternal: true,
@@ -22,7 +20,7 @@ export function viteConfig(entryPoint) {
               });
             } else if (bundle.fileName.endsWith('.cjs')) {
               bundle.code = bundle.code.replace(/require\("[\.\/]+\/node_modules\//gi, () => {
-                return 'require("';
+                return `require("`;
               });
               bundle.code = bundle.code.replace('vitest/dist/config.js', () => {
                 return 'vitest/config';
