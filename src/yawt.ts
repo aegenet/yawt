@@ -110,8 +110,8 @@ const tasks = {
       project.devDependencies?.forEach(dep => {
         cmds.push(`${jsonPath} -I -f ./package.json -e "this.devDependencies['${dep}']='~${version}';"`);
       });
-      cmds.push(`${jsonPath} -I -f ./package.json -e "this.version='${version}';"`);
-      // cmds.push(`npm version "${version}"`);
+      // cmds.push(`${jsonPath} -I -f ./package.json -e "this.version='${version}';"`);
+      cmds.push(`npm version --no-commit-hooks --no-git-tag-version "${version}"`);
     }
 
     return cmds.join(' && ');
