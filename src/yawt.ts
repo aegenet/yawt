@@ -110,7 +110,8 @@ const tasks = {
       project.devDependencies?.forEach(dep => {
         cmds.push(`${jsonPath} -I -f ./package.json -e "this.devDependencies['${dep}']='~${version}';"`);
       });
-      cmds.push(`npm version "${version}"`);
+      cmds.push(`${jsonPath} -I -f ./package.json -e "this.version='${version}';"`);
+      // cmds.push(`npm version "${version}"`);
     }
 
     return cmds.join(' && ');
@@ -132,14 +133,18 @@ const tasks = {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pkgProject = require(path.join(projectPath, 'package.json'));
 
-    for (const key of ['main', 'module', 'browser']) {
-      if (
-        !(await fs
-          .access(path.join(projectPath, pkgProject[key]))
-          .then(() => true)
-          .catch(() => false))
-      ) {
-        throw new Error(`package.json/${key} must exists (${pkgProject[key]})`);
+    for (const key of ['main', 'module', 'browser', 'types']) {
+      if (pkgProject[key]) {
+        if (
+          !(await fs
+            .access(path.join(projectPath, pkgProject[key]))
+            .then(() => true)
+            .catch(() => false))
+        ) {
+          throw new Error(`package.json/${key} must exists (${pkgProject[key]})`);
+        }
+      } else if (key !== 'browser') {
+        throw new Error(`package.json/${key} must exists`);
       }
     }
     if (pkgProject.exports['.']) {
@@ -187,7 +192,7 @@ const tasks = {
 } as const;
 
 async function _ensureExports(projectPath: string, pkgExports: Record<string, Record<string, string>>, folder: string) {
-  for (const key of ['require', 'import']) {
+  for (const key of ['require', 'import', 'types']) {
     if (
       !(await fs
         .access(path.join(projectPath, pkgExports[folder][key]))
@@ -195,16 +200,6 @@ async function _ensureExports(projectPath: string, pkgExports: Record<string, Re
         .catch(() => false))
     ) {
       throw new Error(`package.json/${folder}/${key} must exists (${pkgExports[folder][key]})`);
-    }
-  }
-  if (pkgExports[folder].types) {
-    if (
-      !(await fs
-        .access(path.join(projectPath, pkgExports[folder].types))
-        .then(() => true)
-        .catch(() => false))
-    ) {
-      throw new Error(`package.json/${folder}/types must exists (${pkgExports[folder].types})`);
     }
   }
 }
