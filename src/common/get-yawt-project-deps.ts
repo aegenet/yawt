@@ -8,10 +8,10 @@ export async function getYawtProjectDeps(options: {
   cwd: string;
   currentProject: string;
   yawtFileName?: string;
-}): Promise<Record<string, string>> {
-  const yawtAliases: Record<string, string> = {};
+}): Promise<Record<string, string> | undefined> {
   const config = await findYawtConfig(options.cwd, options.yawtFileName);
   if (config) {
+    const yawtAliases: Record<string, string> = {};
     const projInfo = config.find(f => f.name === options.currentProject);
     if (projInfo) {
       if (projInfo.dependencies) {
@@ -25,6 +25,7 @@ export async function getYawtProjectDeps(options: {
         }
       }
     }
+    return yawtAliases;
   }
-  return yawtAliases;
+  return undefined;
 }

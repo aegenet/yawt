@@ -137,25 +137,19 @@ export async function viteConfigurator({
   }
 
   if ((injectTestAlias && testAutoAlias) || autoAlias) {
-    if (npmWorkspace) {
-      const aliasGenerated = await getNpmProjectsAlias(npmWorkspace, libName);
-      if (injectTestAlias) {
-        testAlias = {
-          ...aliasGenerated,
-          ...testAlias,
-        };
-      } else {
-        resolve = {
-          ...resolve,
-          alias: { ...resolve.alias, ...aliasGenerated },
-        };
-      }
-    } else {
-      const aliasGenerated = await getYawtProjectDeps({
-        cwd,
-        currentProject: libName.split('/').pop()!,
-        yawtFileName: configFileName,
-      });
+    // We try to get the alias from the yawt config file (more reliable)
+    let aliasGenerated = await getYawtProjectDeps({
+      cwd,
+      currentProject: libName.split('/').pop()!,
+      yawtFileName: configFileName,
+    });
+
+    if (!aliasGenerated && npmWorkspace) {
+      // We fallback to the npm workspace
+      aliasGenerated = await getNpmProjectsAlias(npmWorkspace, libName);
+    }
+
+    if (aliasGenerated) {
       if (injectTestAlias) {
         testAlias = {
           ...aliasGenerated,
