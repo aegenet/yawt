@@ -1,0 +1,16 @@
+{
+  "name": "@aegenet/b",
+  "version": "1.0.0",
+  "description": "Something",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo hello"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "author": "Chihiro",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.test"
+  }
+}

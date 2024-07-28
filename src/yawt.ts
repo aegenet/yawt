@@ -207,7 +207,7 @@ async function _ensureExports(projectPath: string, pkgExports: Record<string, Re
 export async function yawt(options: YawtOptions): Promise<void> {
   const taskMode = options.task;
   options.rootDir ||= cwd();
-  options.configDirectory ||= path.resolve(cwd(), '.build');
+  options.configDirectory ||= path.resolve(options.rootDir, '.build');
   options.configFileName ||= 'yawt.config.json';
   options.workers ||= 8;
 

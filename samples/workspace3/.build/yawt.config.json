@@ -1,0 +1,16 @@
+[{
+  "name": "a",
+  "links": [],
+  "dependencies": [],
+  "publish": false
+}, {
+  "name": "b",
+  "links": [],
+  "dependencies": ["a"],
+  "publish": false
+}, {
+  "name": "c",
+  "links": [],
+  "dependencies": ["a", "b"],
+  "publish": false
+}]

@@ -9,6 +9,11 @@ export function viteConfig(entryPoint) {
     entryPoint: entryPoint,
     nodeExternal: true,
     makeAbsoluteExternalsRelative: true,
+    server: {
+      watch: {
+        ignored: ['**/packages/**', '**/samples/**', '**/build/**', '**/node_modules/**', '**/dist/**'],
+      },
+    },
     plugins: [
       {
         name: 'synckit',

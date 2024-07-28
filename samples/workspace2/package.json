@@ -1,0 +1,9 @@
+{
+  "name": "@aegenet/workspace1",
+  "private": true,
+  "workspaces": [
+    "a",
+    "b",
+    "c"
+  ]
+}

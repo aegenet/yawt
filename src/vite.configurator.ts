@@ -1,13 +1,15 @@
 // vite.config.js
 import { resolve as pathResolve } from 'node:path';
-import { type InlineConfig, defineConfig, type Plugin, type ResolveOptions } from 'vite';
+import { type InlineConfig, defineConfig, type Plugin, type ResolveOptions, type ServerOptions } from 'vite';
 import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
 import { cwd as processCwd } from 'node:process';
-import { access, readFile } from 'node:fs/promises';
 import type { InputPluginOption } from 'rollup';
 import { env as dynEnv } from 'node:process';
+import { findNpmWorkspacePackages } from './common/find-npm-workspace-packages';
+import { getNpmProjectsAlias } from './common/get-npm-projects-alias';
+import { getYawtProjectDeps } from './common/get-yawt-project-deps';
 
 /**
  * Vite Configuration
@@ -28,6 +30,11 @@ export async function viteConfigurator({
   rollupPlugins = undefined,
   isAWorkspace = undefined,
   resolve = {},
+  testAlias = {},
+  testAutoAlias = false,
+  autoAlias = false,
+  configFileName = undefined,
+  server = undefined,
 }: {
   /** Working directory */
   cwd?: string;
@@ -69,7 +76,7 @@ export async function viteConfigurator({
    * Minify Keep Class Names
    */
   minifyKeepClassNames?: boolean;
-  test?: Omit<InlineConfig, 'server' | 'css'>;
+  test?: Omit<InlineConfig, 'server' | 'css'> & { exclude?: string[] };
   plugins?: Plugin[];
   rollupPlugins?: InputPluginOption;
   /**
@@ -84,50 +91,82 @@ export async function viteConfigurator({
   resolve?: ResolveOptions & {
     alias?: { [find: string]: string };
   };
+  /**
+   * Vite resolve.alias options, but for tests
+   */
+  testAlias?: { [find: string]: string };
+  /**
+   * Auto alias for tests
+   */
+  testAutoAlias?: boolean;
+  /**
+   * Auto alias
+   */
+  autoAlias?: boolean;
+  /**
+   * Yawt config file name
+   * @default `yawt.config.json`
+   */
+  configFileName?: string;
+  /**
+   * Vite server options
+   */
+  server?: ServerOptions;
 }) {
   folder = folder ? folder + '/' : '';
 
   let dependencies: Array<string | RegExp> = [];
 
-  let workspaces: string[] = [];
-  const vitestCtx = dynEnv.npm_lifecycle_script?.includes('vitest') ?? false;
+  const injectTestAlias = dynEnv.npm_lifecycle_script?.includes('vitest') ?? false;
 
-  if (isAWorkspace === undefined) {
-    const mainPkgPath = pathResolve(cwd, '../../package.json');
-    if (
-      await access(mainPkgPath)
-        .then(() => true)
-        .catch(() => false)
-    ) {
-      workspaces = JSON.parse(await readFile(mainPkgPath, 'utf-8')).workspaces ?? [];
-      isAWorkspace = workspaces.length ? true : false;
-
-      if (vitestCtx) {
-        resolve.alias ??= {};
-        let subWkPath: string;
-        let pkgName: string;
-        for (const workspace of workspaces) {
-          subWkPath = pathResolve(cwd, `../../${workspace}`);
-          pkgName = JSON.parse(await readFile(subWkPath, 'utf-8')).name as string;
-          if (!(pkgName in resolve.alias) && pkgName !== libName) {
-            resolve.alias[pkgName] = subWkPath;
-          }
-        }
-      }
-    }
-  }
+  const npmWorkspace =
+    isAWorkspace === undefined || isAWorkspace === true ? await findNpmWorkspacePackages(cwd) : false;
 
   if (nodeExternal) {
     const nodeExtParams = typeof nodeExternal !== 'boolean' ? nodeExternal : {};
     dependencies = await nodeExternals(cwd, nodeExtParams);
 
-    if (isAWorkspace) {
+    if (npmWorkspace) {
       // Workspace
-      dependencies = dependencies.concat(await nodeExternals(cwd, nodeExtParams));
+      dependencies = dependencies.concat(await nodeExternals(npmWorkspace!.rootDirectory, nodeExtParams));
     }
 
     if (dependencies.length) {
       console.log(`FYI: your project depends to ${dependencies.length} packages.`);
+    }
+  }
+
+  if ((injectTestAlias && testAutoAlias) || autoAlias) {
+    if (npmWorkspace) {
+      const aliasGenerated = await getNpmProjectsAlias(npmWorkspace, libName);
+      if (injectTestAlias) {
+        testAlias = {
+          ...aliasGenerated,
+          ...testAlias,
+        };
+      } else {
+        resolve = {
+          ...resolve,
+          alias: { ...resolve.alias, ...aliasGenerated },
+        };
+      }
+    } else {
+      const aliasGenerated = await getYawtProjectDeps({
+        cwd,
+        currentProject: libName.split('/').pop()!,
+        yawtFileName: configFileName,
+      });
+      if (injectTestAlias) {
+        testAlias = {
+          ...aliasGenerated,
+          ...testAlias,
+        };
+      } else {
+        resolve = {
+          ...resolve,
+          alias: { ...resolve.alias, ...aliasGenerated },
+        };
+      }
     }
   }
 
@@ -147,10 +186,11 @@ export async function viteConfigurator({
       clearMocks: true,
       environment: 'node',
       globals: true,
-      exclude: [...configDefaults.exclude, 'build/**'],
       // testMatch: test?.testMatch ?? ["./src/**/*.spec.ts"],
       ...test,
+      exclude: [...configDefaults.exclude, '**/build/**', ...(test?.exclude ?? [])],
     },
+    server,
     plugins: [
       yaViteBanner({
         raw: true,
@@ -160,7 +200,13 @@ export async function viteConfigurator({
       }),
       ...plugins,
     ],
-    resolve,
+    resolve:
+      injectTestAlias && testAlias
+        ? {
+            ...resolve,
+            alias: { ...resolve.alias, ...testAlias },
+          }
+        : resolve,
     build: {
       outDir: pathResolve(cwd, `./dist/${folder}`),
       lib,
