@@ -14,6 +14,6 @@ describe('viteConfigurator', () => {
       cwd: cwd(),
       libName: '@aegenet/yawt',
     });
-    assert.strictEqual(config.plugins?.length, 1);
+    assert.strictEqual(config.plugins?.length, 3);
   });
 });

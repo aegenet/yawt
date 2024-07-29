@@ -5,11 +5,12 @@ import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
 import { cwd as processCwd } from 'node:process';
-import type { InputPluginOption } from 'rollup';
+import type { InputPluginOption, NormalizedOutputOptions, OutputAsset, OutputChunk } from 'rollup';
 import { env as dynEnv } from 'node:process';
 import { findNpmWorkspacePackages } from './common/find-npm-workspace-packages';
 import { getNpmProjectsAlias } from './common/get-npm-projects-alias';
 import { getYawtProjectDeps } from './common/get-yawt-project-deps';
+import { writeFile, readFile } from 'node:fs/promises';
 
 /**
  * Vite Configuration
@@ -36,6 +37,8 @@ export async function viteConfigurator({
   autoAlias = false,
   configFileName = undefined,
   server = undefined,
+  autoFixImports = true,
+  onAutoFixImports = undefined,
 }: {
   /** Working directory */
   cwd?: string;
@@ -119,6 +122,27 @@ export async function viteConfigurator({
    * Vite server options
    */
   server?: ServerOptions;
+  /**
+   * Auto fix imports: when true, it will try to fix imports that are relative or absolute to node_modules
+   *
+   * @default true
+   */
+  autoFixImports?: boolean;
+  /**
+   * On auto fix imports
+   *
+   * This is useful to fix imports that are not correctly resolved
+   *
+   * @example
+   * ```ts
+   * if (bundle.fileName.endsWith('.cjs')) {
+   *   bundle.code = bundle.code.replace('vitest/dist/config.js', () => {
+   *     return 'vitest/config';
+   *   });
+   * }
+   * ```
+   */
+  onAutoFixImports?: (options: NormalizedOutputOptions, bundle: OutputAsset | OutputChunk) => void;
 }) {
   folder = folder ? folder + '/' : '';
 
@@ -143,7 +167,8 @@ export async function viteConfigurator({
     }
   }
 
-  if ((injectTestAlias && testAutoAlias) || autoAlias) {
+  const hasAutoAlias = (injectTestAlias && testAutoAlias) || autoAlias;
+  if (hasAutoAlias) {
     // We try to get the alias from the yawt config file (more reliable)
     let aliasGenerated = await getYawtProjectDeps({
       cwd,
@@ -200,6 +225,85 @@ export async function viteConfigurator({
         entryOnly: true,
         test: /cli\.(js|ts|cjs|mjs|.umd.js)$/,
       }),
+      {
+        name: 'auto-fix-imports',
+        generateBundle(options, bundles) {
+          if (autoFixImports) {
+            for (const [, bundle] of Object.entries(bundles)) {
+              if ((bundle as { code?: string }).code) {
+                // Remove the path prefix from node_modules imports
+                if (bundle.fileName.endsWith('.mjs')) {
+                  (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
+                    // eslint-disable-next-line no-useless-escape
+                    / from "[\.\/]+\/node_modules\//gi,
+                    () => {
+                      return ' from "';
+                    }
+                  );
+                } else if ((bundle as { fileName: string }).fileName.endsWith('.cjs')) {
+                  (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
+                    // eslint-disable-next-line no-useless-escape
+                    /require\("[\.\/]+\/node_modules\//gi,
+                    () => {
+                      return 'require("';
+                    }
+                  );
+                }
+
+                // Custom action
+                onAutoFixImports?.(options, bundle);
+              }
+            }
+          } else {
+            // track invalid imports
+            let libs: string[] | undefined = undefined;
+            for (const [, bundle] of Object.entries(bundles)) {
+              if (bundle.fileName.endsWith('.mjs')) {
+                libs = [
+                  // eslint-disable-next-line no-useless-escape
+                  ...String((bundle as { code?: string }).code).matchAll(/ from "[\.\/]+\/node_modules\/([^"]+)"/gi),
+                ].map(m => m[1]);
+              } else if (bundle.fileName.endsWith('.cjs')) {
+                libs = [
+                  // eslint-disable-next-line no-useless-escape
+                  ...String((bundle as { code?: string }).code).matchAll(/require\("[\.\/]+\/node_modules\/([^"]+)"/gi),
+                ].map(m => m[1]);
+              }
+              if (libs?.length) {
+                throw new Error(
+                  `Found relative node_modules import in ${bundle.fileName}: ${libs.join(', ')}. Have you forgotten to add it in the package/peerDependencies?`
+                );
+              }
+            }
+          }
+        },
+      },
+      {
+        name: 'vite-tsconfig-paths',
+        async config(config) {
+          const resolveAlias = config.resolve?.alias;
+          if (hasAutoAlias && resolveAlias) {
+            const tsconfigPath = pathResolve(cwd, 'tsconfig.json');
+            const tsconfig = JSON.parse(await readFile(tsconfigPath, 'utf-8'));
+            tsconfig.compilerOptions ||= {};
+            tsconfig.compilerOptions.paths ||= {};
+
+            let hasChanged: boolean = false;
+            let currentAlias: string | undefined;
+            for (const alias in config.resolve!.alias) {
+              currentAlias = (config.resolve!.alias! as Record<string, string>)![alias];
+              if (tsconfig.compilerOptions.paths[alias]?.[0] !== currentAlias) {
+                tsconfig.compilerOptions.paths[alias] = [currentAlias];
+                hasChanged = true;
+              }
+            }
+
+            if (hasChanged) {
+              await writeFile(tsconfigPath, JSON.stringify(tsconfig, null, 2), 'utf-8');
+            }
+          }
+        },
+      },
       ...plugins,
     ],
     resolve:
