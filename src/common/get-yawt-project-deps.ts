@@ -8,7 +8,9 @@ export async function getYawtProjectDeps(options: {
   cwd: string;
   currentProject: string;
   yawtFileName?: string;
+  appendPath?: string;
 }): Promise<Record<string, string> | undefined> {
+  const appendPath = options.appendPath || '';
   const config = await findYawtConfig(options.cwd, options.yawtFileName);
   if (config) {
     const yawtAliases: Record<string, string> = {};
@@ -16,12 +18,12 @@ export async function getYawtProjectDeps(options: {
     if (projInfo) {
       if (projInfo.dependencies) {
         for (const dep of projInfo.dependencies) {
-          yawtAliases[dep] = resolve(`./packages/${basename(dep)}`);
+          yawtAliases[dep] = resolve(`./packages/${basename(dep)}`, appendPath);
         }
       }
       if (projInfo.devDependencies) {
         for (const dep of projInfo.devDependencies) {
-          yawtAliases[dep] = resolve(`./packages/${basename(dep)}`);
+          yawtAliases[dep] = resolve(`./packages/${basename(dep)}`, appendPath);
         }
       }
     }

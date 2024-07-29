@@ -49,5 +49,17 @@ describe('get-npm-projects-alias', () => {
       expect(Object.keys(alias)).deep.equals(['@aegenet/b', '@aegenet/c']);
       Object.values(alias).forEach(v => expect(v).match(/[b-c]$/) && expect(v).not.match(/[a]$/));
     });
+
+    it('A path with a parent workspace ./../ - appendPath', async () => {
+      const alias = await getNpmProjectsAlias(
+        path.resolve(process.cwd(), './samples/workspace2/a'),
+        '@aegenet/a',
+        'src/index.ts'
+      );
+      expect(Object.keys(alias)).deep.equals(['@aegenet/b', '@aegenet/c']);
+      Object.values(alias).forEach(
+        v => v.endsWith(path.resolve('b', 'src', 'index.ts')) || v.endsWith(path.resolve('c', 'src', 'index.ts'))
+      );
+    });
   });
 });

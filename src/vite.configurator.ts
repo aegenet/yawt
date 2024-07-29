@@ -32,6 +32,7 @@ export async function viteConfigurator({
   resolve = {},
   testAlias = {},
   testAutoAlias = false,
+  autoAliasSubPath = 'src/index.ts',
   autoAlias = false,
   configFileName = undefined,
   server = undefined,
@@ -104,6 +105,12 @@ export async function viteConfigurator({
    */
   autoAlias?: boolean;
   /**
+   * Alias sub path (auto)
+   *
+   * @default `src/index.ts`
+   */
+  autoAliasSubPath?: string;
+  /**
    * Yawt config file name
    * @default `yawt.config.json`
    */
@@ -142,11 +149,12 @@ export async function viteConfigurator({
       cwd,
       currentProject: libName.split('/').pop()!,
       yawtFileName: configFileName,
+      appendPath: autoAliasSubPath,
     });
 
     if (!aliasGenerated && npmWorkspace) {
       // We fallback to the npm workspace
-      aliasGenerated = await getNpmProjectsAlias(npmWorkspace, libName);
+      aliasGenerated = await getNpmProjectsAlias(npmWorkspace, libName, autoAliasSubPath);
     }
 
     if (aliasGenerated) {

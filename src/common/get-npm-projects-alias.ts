@@ -10,7 +10,8 @@ import { type NpmWorkspacePackages, findNpmWorkspacePackages } from './find-npm-
  */
 export async function getNpmProjectsAlias(
   cwdOrWorkspace: string | NpmWorkspacePackages,
-  skipPkgName?: string
+  skipPkgName?: string,
+  appendPath: string = ''
 ): Promise<Record<string, string>> {
   const npmAlias: Record<string, string> = {};
   const monorepo = typeof cwdOrWorkspace === 'string' ? await findNpmWorkspacePackages(cwdOrWorkspace) : cwdOrWorkspace;
@@ -23,7 +24,7 @@ export async function getNpmProjectsAlias(
       subWkPackagePath = join(subWkPath, 'package.json');
       pkgName = JSON.parse(await readFile(subWkPackagePath, 'utf-8')).name as string;
       if (pkgName !== skipPkgName) {
-        npmAlias[pkgName] = subWkPath;
+        npmAlias[pkgName] = appendPath ? resolve(subWkPath, appendPath) : subWkPath;
       }
     }
   }
