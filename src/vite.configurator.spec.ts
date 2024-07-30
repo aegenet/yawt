@@ -40,9 +40,10 @@ describe('viteConfigurator', () => {
   });
 
   test('auto-alias - yawt config - with one dep', async () => {
+    const curCwd = resolve(cwd(), './samples/workspace3/packages/b');
     const config = await viteConfigurator({
       autoAlias: true,
-      cwd: resolve(cwd(), './samples/workspace3/packages/b'),
+      cwd: curCwd,
       libName: '@aegenet/b',
     });
     assert.isOk(config);

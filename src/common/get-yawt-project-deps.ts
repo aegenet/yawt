@@ -1,4 +1,4 @@
-import { resolve, basename } from 'node:path';
+import { join, basename, dirname } from 'node:path';
 import { findYawtConfig } from './find-yawt-config';
 
 /**
@@ -13,17 +13,18 @@ export async function getYawtProjectDeps(options: {
   const appendPath = options.appendPath || '';
   const config = await findYawtConfig(options.cwd, options.yawtFileName);
   if (config) {
+    const rootPkg = dirname(config.configPath.replace('.build', ''));
     const yawtAliases: Record<string, string> = {};
-    const projInfo = config.find(f => f.name === options.currentProject);
+    const projInfo = config.projects.find(f => f.name === options.currentProject);
     if (projInfo) {
       if (projInfo.dependencies) {
         for (const dep of projInfo.dependencies) {
-          yawtAliases[dep] = resolve(`./packages/${basename(dep)}`, appendPath);
+          yawtAliases[dep] = join(rootPkg, `./packages/${basename(dep)}`, appendPath);
         }
       }
       if (projInfo.devDependencies) {
         for (const dep of projInfo.devDependencies) {
-          yawtAliases[dep] = resolve(`./packages/${basename(dep)}`, appendPath);
+          yawtAliases[dep] = join(rootPkg, `./packages/${basename(dep)}`, appendPath);
         }
       }
     }

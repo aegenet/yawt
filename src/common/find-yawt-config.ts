@@ -11,7 +11,13 @@ import { YawtProject } from '../yawt-project';
 export async function findYawtConfig(
   cwd: string,
   yawtFileName: string = 'yawt.config.json'
-): Promise<YawtProject[] | undefined> {
+): Promise<
+  | {
+      configPath: string;
+      projects: YawtProject[];
+    }
+  | undefined
+> {
   for (const yawtConfigPath of [
     path.join(cwd, yawtFileName),
     path.join(cwd, './.build/', yawtFileName),
@@ -25,7 +31,10 @@ export async function findYawtConfig(
         .then(() => true)
         .catch(() => false)
     ) {
-      return JSON.parse(await readFile(yawtConfigPath, 'utf-8')) as YawtProject[];
+      return {
+        configPath: yawtConfigPath,
+        projects: JSON.parse(await readFile(yawtConfigPath, 'utf-8')) as YawtProject[],
+      };
     }
   }
   return undefined;
