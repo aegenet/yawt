@@ -38,7 +38,7 @@ describe('get-yawt-project-deps', () => {
         currentProject: 'b',
       });
       expect(alias).toBeTruthy();
-      expect(Object.keys(alias!)).deep.equals(['a']);
+      expect(Object.keys(alias!)).deep.equals(['@aegenet/a']);
       Object.values(alias!).forEach(v => expect(v).match(/[a]$/) && expect(v).not.match(/[bc]$/));
     });
 
@@ -48,7 +48,7 @@ describe('get-yawt-project-deps', () => {
         currentProject: 'c',
       });
       expect(alias).toBeTruthy();
-      expect(Object.keys(alias!)).deep.equals(['a', 'b']);
+      expect(Object.keys(alias!)).deep.equals(['@aegenet/a', '@aegenet/b']);
       Object.values(alias!).forEach(v => expect(v).match(/[ab]$/) && expect(v).not.match(/[c]$/));
     });
 
@@ -59,7 +59,7 @@ describe('get-yawt-project-deps', () => {
         appendPath: 'src/index.ts',
       });
       expect(alias).toBeTruthy();
-      expect(Object.keys(alias!)).deep.equals(['a']);
+      expect(Object.keys(alias!)).deep.equals(['@aegenet/a']);
       Object.values(alias!).forEach(v => v.endsWith(resolve('a', 'src', 'index.ts')));
     });
 
@@ -70,7 +70,7 @@ describe('get-yawt-project-deps', () => {
         appendPath: 'src/index.ts',
       });
       expect(alias).toBeTruthy();
-      expect(Object.keys(alias!)).deep.equals(['a', 'b']);
+      expect(Object.keys(alias!)).deep.equals(['@aegenet/a', '@aegenet/b']);
       Object.values(alias!).forEach(
         v => v.endsWith(resolve('a', 'src', 'index.ts')) || v.endsWith(resolve('b', 'src', 'index.ts'))
       );

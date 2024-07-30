@@ -10,7 +10,9 @@ import { env as dynEnv } from 'node:process';
 import { findNpmWorkspacePackages } from './common/find-npm-workspace-packages';
 import { getNpmProjectsAlias } from './common/get-npm-projects-alias';
 import { getYawtProjectDeps } from './common/get-yawt-project-deps';
-import { writeFile, readFile } from 'node:fs/promises';
+import { trackInvalidImportsPlugin } from './vite-plugins/track-invalid-imports-plugin';
+import { autoFixImportsPlugin } from './vite-plugins/auto-fix-imports-plugin';
+import { viteTSConfigPathsPlugin } from './vite-plugins/vite-tsconfig-paths-plugin';
 
 /**
  * Vite Configuration
@@ -33,7 +35,7 @@ export async function viteConfigurator({
   resolve = {},
   testAlias = {},
   testAutoAlias = false,
-  autoAliasSubPath = 'src/index.ts',
+  autoAliasSubPath = 'src',
   autoAlias = false,
   configFileName = undefined,
   server = undefined,
@@ -110,7 +112,7 @@ export async function viteConfigurator({
   /**
    * Alias sub path (auto)
    *
-   * @default `src/index.ts`
+   * @default `src`
    */
   autoAliasSubPath?: string;
   /**
@@ -225,87 +227,16 @@ export async function viteConfigurator({
         entryOnly: true,
         test: /cli\.(js|ts|cjs|mjs|.umd.js)$/,
       }),
-      {
-        name: 'auto-fix-imports',
-        generateBundle(options, bundles) {
-          if (autoFixImports) {
-            for (const [, bundle] of Object.entries(bundles)) {
-              if ((bundle as { code?: string }).code) {
-                // Remove the path prefix from node_modules imports
-                if (bundle.fileName.endsWith('.mjs')) {
-                  (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
-                    // eslint-disable-next-line no-useless-escape
-                    / from "[\.\/]+\/node_modules\//gi,
-                    () => {
-                      return ' from "';
-                    }
-                  );
-                } else if ((bundle as { fileName: string }).fileName.endsWith('.cjs')) {
-                  (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
-                    // eslint-disable-next-line no-useless-escape
-                    /require\("[\.\/]+\/node_modules\//gi,
-                    () => {
-                      return 'require("';
-                    }
-                  );
-                }
-
-                // Custom action
-                onAutoFixImports?.(options, bundle);
-              }
-            }
-          } else {
-            // track invalid imports
-            let libs: string[] | undefined = undefined;
-            for (const [, bundle] of Object.entries(bundles)) {
-              if (bundle.fileName.endsWith('.mjs')) {
-                libs = [
-                  // eslint-disable-next-line no-useless-escape
-                  ...String((bundle as { code?: string }).code).matchAll(/ from "[\.\/]+\/node_modules\/([^"]+)"/gi),
-                ].map(m => m[1]);
-              } else if (bundle.fileName.endsWith('.cjs')) {
-                libs = [
-                  // eslint-disable-next-line no-useless-escape
-                  ...String((bundle as { code?: string }).code).matchAll(/require\("[\.\/]+\/node_modules\/([^"]+)"/gi),
-                ].map(m => m[1]);
-              }
-              if (libs?.length) {
-                throw new Error(
-                  `Found relative node_modules import in ${bundle.fileName}: ${libs.join(', ')}. Have you forgotten to add it in the package/peerDependencies?`
-                );
-              }
-            }
-          }
-        },
-      },
-      {
-        name: 'vite-tsconfig-paths',
-        async config(config) {
-          const resolveAlias = config.resolve?.alias;
-          if (hasAutoAlias && resolveAlias) {
-            const tsconfigPath = pathResolve(cwd, 'tsconfig.json');
-            const tsconfig = JSON.parse(await readFile(tsconfigPath, 'utf-8'));
-            tsconfig.compilerOptions ||= {};
-            tsconfig.compilerOptions.paths ||= {};
-
-            let hasChanged: boolean = false;
-            let currentAlias: string | undefined;
-            for (const alias in config.resolve!.alias) {
-              currentAlias = (config.resolve!.alias! as Record<string, string>)![alias];
-              if (tsconfig.compilerOptions.paths[alias]?.[0] !== currentAlias) {
-                tsconfig.compilerOptions.paths[alias] = [currentAlias];
-                hasChanged = true;
-              }
-            }
-
-            if (hasChanged) {
-              await writeFile(tsconfigPath, JSON.stringify(tsconfig, null, 2), 'utf-8');
-            }
-          }
-        },
-      },
+      autoFixImports
+        ? autoFixImportsPlugin({
+            onAutoFixImports,
+          })
+        : trackInvalidImportsPlugin(),
+      viteTSConfigPathsPlugin({
+        cwd,
+      }),
       ...plugins,
-    ],
+    ].filter(f => f),
     resolve:
       injectTestAlias && testAlias
         ? {

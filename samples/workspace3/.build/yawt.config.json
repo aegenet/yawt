@@ -6,11 +6,11 @@
 }, {
   "name": "b",
   "links": [],
-  "dependencies": ["a"],
+  "dependencies": ["@aegenet/a"],
   "publish": false
 }, {
   "name": "c",
   "links": [],
-  "dependencies": ["a", "b"],
+  "dependencies": ["@aegenet/a", "@aegenet/b"],
   "publish": false
 }]
