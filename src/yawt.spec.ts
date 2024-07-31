@@ -59,9 +59,27 @@ describe('yawt', () => {
     });
   });
 
-  test('version', async () => {
+  test('version - 0.0.0-dev', async () => {
+    try {
+      await yawt({
+        task: 'version',
+        npmVersion: '0.0.0-dev',
+      });
+      throw new Error('Should not reach here');
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+      expect((e as Error).message).toBe('Invalid version 0.0.0-dev');
+    }
     await yawt({
       task: 'version',
+      npmVersion: '1.0.0',
+    });
+  });
+
+  test('version 1.0.0 - OK', async () => {
+    await yawt({
+      task: 'version',
+      npmVersion: '1.0.0',
     });
   });
 

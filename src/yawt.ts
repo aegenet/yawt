@@ -105,12 +105,12 @@ const tasks = {
 
       const jsonPath = await _getJSONLibPath(rootDir!);
       project.dependencies?.forEach(dep => {
-        cmds.push(`${jsonPath} -I -f ./package.json -e "this.dependencies['${dep}']='~${version}';"`);
+        cmds.push(`node ${jsonPath} -I -f ./package.json -e "this.dependencies['${dep}']='~${version}';"`);
       });
       project.devDependencies?.forEach(dep => {
-        cmds.push(`${jsonPath} -I -f ./package.json -e "this.devDependencies['${dep}']='~${version}';"`);
+        cmds.push(`node ${jsonPath} -I -f ./package.json -e "this.devDependencies['${dep}']='~${version}';"`);
       });
-      cmds.push(`${jsonPath} -I -f ./package.json -e "this.version='${version}';"`);
+      cmds.push(`node ${jsonPath} -I -f ./package.json -e "this.version='${version}';"`);
       // cmds.push(`npm version --no-commit-hooks --no-git-tag-version "${version}"`);
     }
 
