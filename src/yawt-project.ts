@@ -3,5 +3,6 @@ export type YawtProject = {
   links?: string[];
   dependencies?: string[];
   devDependencies?: string[];
+  peerDependencies?: string[];
   publish?: boolean;
 };
