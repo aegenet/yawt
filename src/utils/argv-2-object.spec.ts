@@ -50,5 +50,4 @@ describe('argv2Object', () => {
     const expected = { verbose: true, debug: false };
     expect(result).toEqual(expected);
   });
-  // Add more test cases as needed
 });

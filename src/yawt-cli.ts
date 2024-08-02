@@ -27,10 +27,11 @@ if (!npmVersion) {
 yawt({
   task: cliParams.task,
   workers: cliParams.workers || parseInt(env.YAWT_WORKER_THREADS || '8', 10),
-  silent: cliParams.silent || env.YAWT_SILENT === 'true',
-  single: cliParams.single || env.YAWT_SINGLE === 'true',
+  silent: cliParams.silent || env.YAWT_SILENT === 'true' || env.YAWT_SILENT === '1',
+  single: cliParams.single || env.YAWT_SINGLE === 'true' || env.YAWT_SINGLE === '1',
   npmRegistryURL: cliParams.npmRegistryURL || env.YAWT_NPM_PUSH_REGISTRY,
-  npmPublicPublish: cliParams.npmPublicPublish || env.YAWT_NPM_PUBLIC_PUBLISH === 'true',
+  npmPublicPublish:
+    cliParams.npmPublicPublish || env.YAWT_NPM_PUBLIC_PUBLISH === 'true' || env.YAWT_NPM_PUBLIC_PUBLISH === '1',
   npmNamespace: cliParams.npmNamespace || env.YAWT_NPM_NAMESPACE,
   npmVersion: npmVersion,
 })
