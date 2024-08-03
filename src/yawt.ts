@@ -1,7 +1,7 @@
-import path from 'node:path';
-import fs from 'node:fs/promises';
-import child_process from 'node:child_process';
-import util from 'node:util';
+import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
+import * as child_process from 'node:child_process';
+import * as util from 'node:util';
 import type { YawtProject } from './yawt-project';
 import { cwd } from 'node:process';
 
@@ -139,8 +139,7 @@ const tasks = {
   /** Test */
   test: async (project: YawtProject, options: Required<YawtOptions>) => {
     const projectPath = options.single ? options.rootDir : path.join(options.rootDir, `./packages/${project.name}`);
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pkgProject = require(path.join(projectPath, 'package.json'));
+    const pkgProject = JSON.parse(await fs.readFile(path.join(projectPath, 'package.json'), 'utf-8'));
 
     for (const key of ['main', 'module', 'browser', 'types']) {
       if (pkgProject[key]) {
@@ -231,8 +230,7 @@ export async function yawt(options: YawtOptions): Promise<void> {
     }[];
 
     if (options.single) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const currentPkg = require(path.resolve(options.rootDir, 'package.json'));
+      const currentPkg = await fs.readFile(path.resolve(options.rootDir, 'package.json'), 'utf-8').then(JSON.parse);
       projects = [
         {
           name: currentPkg.name,
@@ -241,8 +239,9 @@ export async function yawt(options: YawtOptions): Promise<void> {
         },
       ];
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      projects = require(path.resolve(options.configDirectory, options.configFileName)) as {
+      projects = (await fs
+        .readFile(path.resolve(options.configDirectory, options.configFileName), 'utf-8')
+        .then(JSON.parse)) as {
         name: string;
         links?: string[];
         publish?: boolean;

@@ -1,4 +1,5 @@
-import path from 'node:path';
+import { describe, test, assert } from 'vitest';
+import * as path from 'node:path';
 import { rollupDTSConfigurator } from './index';
 import { cwd } from 'node:process';
 

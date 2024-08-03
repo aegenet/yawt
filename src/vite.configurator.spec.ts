@@ -1,3 +1,4 @@
+import { describe, test, assert } from 'vitest';
 import { viteConfigurator } from './index';
 import { cwd } from 'node:process';
 import { resolve } from 'node:path';

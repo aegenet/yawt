@@ -5,7 +5,7 @@ let folders = process.argv.slice(2);
 
 let coverageBundle = {};
 const buildConfigPath = path.join(__dirname, 'yawt.config.json');
-const projects = fs.existsSync(buildConfigPath) ? require(buildConfigPath) : [];
+const projects = fs.existsSync(buildConfigPath) ? JSON.parse(fs.readFileSync(buildConfigPath, 'utf-8')) : [];
 
 if (projects?.length) {
   // If a config exists, we take it in addition to the specified folders.
@@ -16,14 +16,18 @@ for (let i = 0; i < folders.length; i++) {
   if (fs.existsSync(path.resolve(folders[i]))) {
     if (fs.existsSync(path.resolve(folders[i], 'coverage-final.json'))) {
       console.log(path.resolve(folders[i]));
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      coverageBundle = Object.assign(coverageBundle, require(path.resolve(folders[i], 'coverage-final.json')));
+      coverageBundle = Object.assign(
+        coverageBundle,
+        JSON.parse(fs.readFileSync(path.resolve(folders[i], 'coverage-final.json'), 'utf-8'))
+      );
     } else {
       const files = fs.readdirSync(path.resolve(folders[i]));
       files.forEach(file => {
         if (file.endsWith('.json')) {
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          coverageBundle = Object.assign(coverageBundle, require(path.join(path.resolve(folders[i]), file)));
+          coverageBundle = Object.assign(
+            coverageBundle,
+            JSON.parse(fs.readFileSync(path.resolve(path.join(path.resolve(folders[i]), file)), 'utf-8'))
+          );
         }
       });
     }

@@ -32,13 +32,25 @@ yarn add @aegenet/yawt -D
 }]
 ```
 
-- `eslint.config.cjs`
+- `eslint.config.mjs` (ESM)
+```javascript
+import { eslintConfigurator } from '@aegenet/yawt';
+export default  eslintConfigurator();
+```
+
+- Or with CommonJS `eslint.config.cjs`
 ```javascript
 const { eslintConfigurator } = require('@aegenet/yawt');
 module.exports = eslintConfigurator();
 ```
 
-- `prettier.config.cjs`
+- `prettier.config.mjs`
+```javascript
+import { prettierConfigurator } from '@aegenet/yawt';
+export default prettierConfigurator();
+```
+
+- Or with CommonJS  `prettier.config.cjs`
 ```javascript
 const { prettierConfigurator } = require('@aegenet/yawt');
 module.exports = prettierConfigurator();
@@ -58,12 +70,14 @@ export default viteConfigurator({
 });
 ```
 
-- `rollup.config.dts.cjs`
+- `rollup.config.dts.mjs`
 ```javascript
-const { rollupDTSConfigurator } = require('@aegenet/yawt');
-const { cwd } = require('node:process');
+import { rollupDTSConfigurator } from '@aegenet/yawt';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 export default rollupDTSConfigurator({
-  cwd: cwd(),
+  cwd: dirname(fileURLToPath(import.meta.url)),
   libName: '@sample/lib',
   entryPoint: './src/index.ts',
   nodeExternal: true,

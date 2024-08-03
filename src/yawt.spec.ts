@@ -84,7 +84,6 @@ describe('yawt', () => {
   });
 
   test('publish', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const backPkg = await readFile('./packages/abc/package.json', 'utf-8');
     try {
       await expect(() =>

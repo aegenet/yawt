@@ -1,6 +1,6 @@
 import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { YawtProject } from '../yawt-project';
+import type { YawtProject } from '../yawt-project';
 
 /**
  * Find the Yawt config
