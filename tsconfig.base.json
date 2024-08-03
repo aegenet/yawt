@@ -5,6 +5,7 @@
     "experimentalDecorators": true,
     "verbatimModuleSyntax": true,
     "module": "Preserve",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "target": "ES2022",
     "esModuleInterop": true,
