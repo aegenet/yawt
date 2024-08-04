@@ -1,6 +1,13 @@
 // vite.config.js
 import { resolve as pathResolve } from 'node:path';
-import { type InlineConfig, defineConfig, type Plugin, type ResolveOptions, type ServerOptions } from 'vite';
+import {
+  type InlineConfig,
+  defineConfig,
+  type Plugin,
+  type ResolveOptions,
+  type ServerOptions,
+  type UserConfig,
+} from 'vite';
 import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
@@ -41,6 +48,7 @@ export async function viteConfigurator({
   autoFixImports = true,
   onAutoFixImports = undefined,
   rollupOptions = undefined,
+  viteOptions = undefined,
 }: {
   /** Working directory */
   cwd?: string;
@@ -148,6 +156,10 @@ export async function viteConfigurator({
    * Extends yawt default RollupOptions
    */
   rollupOptions?: RollupOptions | undefined;
+  /**
+   * Extends yawt default ViteOptions
+   */
+  viteOptions?: UserConfig;
 }) {
   folder = folder ? folder + '/' : '';
 
@@ -295,5 +307,6 @@ export async function viteConfigurator({
         ...rollupOptions,
       },
     },
+    ...viteOptions,
   });
 }
