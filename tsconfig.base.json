@@ -1,8 +1,6 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "verbatimModuleSyntax": true,
     "module": "Preserve",
     "moduleResolution": "bundler",
@@ -15,9 +13,9 @@
     "declaration": true,
     "sourceMap": true,
     "newLine": "LF",
-    "outDir": "./build",
     "types": ["vitest/globals"],
     "noEmit": true,
+    "stripInternal": true
   },
   "exclude": [
     "./node_modules"
