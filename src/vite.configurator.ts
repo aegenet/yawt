@@ -5,7 +5,7 @@ import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
 import { cwd as processCwd } from 'node:process';
-import type { InputPluginOption, NormalizedOutputOptions, OutputAsset, OutputChunk, RollupOptions } from 'rollup';
+import type { NormalizedOutputOptions, OutputAsset, OutputChunk, RollupOptions } from 'rollup';
 import { env as dynEnv } from 'node:process';
 import { findNpmWorkspacePackages } from './common/find-npm-workspace-packages';
 import { getNpmProjectsAlias } from './common/get-npm-projects-alias';
@@ -30,7 +30,6 @@ export async function viteConfigurator({
   test,
   plugins = [],
   makeAbsoluteExternalsRelative = false,
-  rollupPlugins = undefined,
   isAWorkspace = undefined,
   resolve = {},
   testAlias = {},
@@ -85,7 +84,6 @@ export async function viteConfigurator({
   minifyKeepClassNames?: boolean;
   test?: Omit<InlineConfig, 'server' | 'css'> & { exclude?: string[] };
   plugins?: Plugin[];
-  rollupPlugins?: InputPluginOption;
   /**
    * Is a workspace?
    *
@@ -268,7 +266,6 @@ export async function viteConfigurator({
           ? dependencies.concat([/node_modules/, /^node:/]).concat(external || [])
           : external || [],
         makeAbsoluteExternalsRelative,
-        plugins: rollupPlugins,
         output: [
           {
             name: libName,
