@@ -16,7 +16,8 @@
     "sourceMap": true,
     "newLine": "LF",
     "outDir": "./build",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "noEmit": true,
   },
   "exclude": [
     "./node_modules"
