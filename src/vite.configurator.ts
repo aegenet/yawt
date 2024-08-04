@@ -149,7 +149,7 @@ export async function viteConfigurator({
   /**
    * Extends yawt default RollupOptions
    */
-  rollupOptions: RollupOptions | undefined;
+  rollupOptions?: RollupOptions | undefined;
 }) {
   folder = folder ? folder + '/' : '';
 
