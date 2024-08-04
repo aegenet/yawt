@@ -47,12 +47,6 @@ describe('yawt', () => {
     ).rejects.toThrowError();
   });
 
-  test('testLocal', async () => {
-    await yawt({
-      task: 'testLocal',
-    });
-  });
-
   test('build', async () => {
     await yawt({
       task: 'build',
@@ -97,5 +91,32 @@ describe('yawt', () => {
     } finally {
       await writeFile('./packages/abc/package.json', backPkg, 'utf-8');
     }
+  });
+
+  test('forEach without scriptName', async () => {
+    await expect(() =>
+      yawt({
+        task: 'forEach',
+        single: true,
+        rootDir: './packages/abc',
+      })
+    ).rejects.toThrowError('"--param=something" is required for the "forEach" task');
+  });
+
+  test('forEach', async () => {
+    await yawt({
+      task: 'forEach',
+      single: true,
+      rootDir: './packages/abc',
+      param: 'test',
+    });
+  });
+
+  test('forEach', async () => {
+    await yawt({
+      task: 'forEach',
+      rootDir: './',
+      param: 'test',
+    });
   });
 });

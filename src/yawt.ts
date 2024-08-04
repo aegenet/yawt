@@ -171,14 +171,6 @@ const tasks = {
 
     return options.single ? 'npm run test --if-present' : `cd ./packages/${project.name}/ && npm run test --if-present`;
   },
-  /** Test local */
-  testLocal: (project: YawtProject, { single }: YawtOptions) => {
-    if (single) {
-      return 'npm run test:local --if-present';
-    } else {
-      return `cd ./packages/${project.name}/ && npm run test:local --if-present`;
-    }
-  },
   /** Publish */
   publish: async (
     project: YawtProject,
@@ -196,6 +188,18 @@ const tasks = {
       `npm publish --${registryNS}=${registry}${npmPublicPublish ? ' --access public' : ''}`,
     ];
     return cmds.join(' && ');
+  },
+  /** forEach project */
+  forEach: (project: YawtProject, { single, param }: YawtOptions) => {
+    if (!param) {
+      throw new Error('"--param=something" is required for the "forEach" task');
+    }
+
+    if (single) {
+      return `npm run ${param} --if-present`;
+    } else {
+      return `cd ./packages/${project.name}/ && npm run ${param} --if-present`;
+    }
   },
 } as const;
 
@@ -352,5 +356,9 @@ export type YawtOptions = {
   npmPublicPublish?: boolean;
   npmNamespace?: string;
   npmVersion?: string;
+  /**
+   * Generic parameter for tasks
+   */
+  param?: string;
 };
 export type YawtTaskNames = keyof typeof tasks;

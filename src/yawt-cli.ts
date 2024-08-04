@@ -12,6 +12,7 @@ const cliParams = argv2Object<{
   npmNamespace: string;
   publish: boolean;
   npmVersion: string;
+  param: string;
 }>(argv.slice(2));
 
 let npmVersion: string | undefined = cliParams.npmVersion?.trim();
@@ -34,6 +35,7 @@ yawt({
     cliParams.npmPublicPublish || env.YAWT_NPM_PUBLIC_PUBLISH === 'true' || env.YAWT_NPM_PUBLIC_PUBLISH === '1',
   npmNamespace: cliParams.npmNamespace || env.YAWT_NPM_NAMESPACE,
   npmVersion: npmVersion,
+  param: cliParams.param,
 })
   .then(() => {
     exit(0);
