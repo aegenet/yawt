@@ -5,7 +5,7 @@ import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
 import { cwd as processCwd } from 'node:process';
-import type { InputPluginOption, NormalizedOutputOptions, OutputAsset, OutputChunk } from 'rollup';
+import type { InputPluginOption, NormalizedOutputOptions, OutputAsset, OutputChunk, RollupOptions } from 'rollup';
 import { env as dynEnv } from 'node:process';
 import { findNpmWorkspacePackages } from './common/find-npm-workspace-packages';
 import { getNpmProjectsAlias } from './common/get-npm-projects-alias';
@@ -41,6 +41,7 @@ export async function viteConfigurator({
   server = undefined,
   autoFixImports = true,
   onAutoFixImports = undefined,
+  rollupOptions = undefined,
 }: {
   /** Working directory */
   cwd?: string;
@@ -145,6 +146,10 @@ export async function viteConfigurator({
    * ```
    */
   onAutoFixImports?: (options: NormalizedOutputOptions, bundle: OutputAsset | OutputChunk) => void;
+  /**
+   * Extends yawt default RollupOptions
+   */
+  rollupOptions: RollupOptions | undefined;
 }) {
   folder = folder ? folder + '/' : '';
 
@@ -290,6 +295,7 @@ export async function viteConfigurator({
               }
             : {} /** not compat */,
         ],
+        ...rollupOptions,
       },
     },
   });
