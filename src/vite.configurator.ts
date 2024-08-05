@@ -342,7 +342,7 @@ export async function viteConfigurator({
                 }
               : undefined /** not compat */,
           ] as (OutputOptions | undefined)[]
-        ).filter(f => f !== undefined),
+        ).filter(f => f) as OutputOptions[],
         ...rollupOptions,
       },
     },
