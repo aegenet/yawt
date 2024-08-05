@@ -12,7 +12,7 @@ import { nodeExternals } from '@aegenet/ya-node-externals';
 import { yaViteBanner } from '@aegenet/ya-vite-banner';
 import { configDefaults } from 'vitest/config';
 import { cwd as processCwd } from 'node:process';
-import type { NormalizedOutputOptions, OutputAsset, OutputChunk, RollupOptions } from 'rollup';
+import type { NormalizedOutputOptions, OutputAsset, OutputChunk, RollupOptions, OutputOptions } from 'rollup';
 import { env as dynEnv } from 'node:process';
 import { findNpmWorkspacePackages } from './common/find-npm-workspace-packages';
 import { getNpmProjectsAlias } from './common/get-npm-projects-alias';
@@ -49,6 +49,11 @@ export async function viteConfigurator({
   onAutoFixImports = undefined,
   rollupOptions = undefined,
   viteOptions = undefined,
+  outputFormats = {
+    cjs: true,
+    es: true,
+    umd: true,
+  },
 }: {
   /** Working directory */
   cwd?: string;
@@ -160,7 +165,34 @@ export async function viteConfigurator({
    * Extends yawt default ViteOptions
    */
   viteOptions?: UserConfig;
+  /**
+   * Default output formats
+   */
+  outputFormats?: {
+    /**
+     * CommonJS
+     *
+     * @default true
+     */
+    cjs?: boolean;
+    /**
+     * ES Module
+     *
+     * @default true
+     */
+    es?: boolean;
+    /**
+     * Universal Module Definition
+     *
+     * @default true
+     */
+    umd?: boolean;
+  };
 }) {
+  outputFormats.cjs ??= true;
+  outputFormats.es ??= true;
+  outputFormats.umd ??= true;
+
   folder = folder ? folder + '/' : '';
 
   let dependencies: Array<string | RegExp> = [];
@@ -279,32 +311,38 @@ export async function viteConfigurator({
           ? dependencies.concat([/node_modules/, /^node:/]).concat(external || [])
           : external || [],
         makeAbsoluteExternalsRelative,
-        output: [
-          {
-            name: libName,
-            // generatedCode: 'es2015',
-            format: 'cjs',
-            entryFileNames: `[name].cjs`,
-            globals: globals || {},
-          },
-          {
-            name: libName,
-            // generatedCode: 'es2015',
-            format: 'es',
-            entryFileNames: `[name].mjs`,
-            globals: globals || {},
-          },
-          asSingleEntryPoint
-            ? {
-                name: libName,
-                // generatedCode: 'es2015',
-                format: 'umd',
-                entryFileNames: `[name].[format].js`,
-                inlineDynamicImports: false,
-                globals: globals || {},
-              }
-            : {} /** not compat */,
-        ],
+        output: (
+          [
+            outputFormats.cjs
+              ? {
+                  name: libName,
+                  // generatedCode: 'es2015',
+                  format: 'cjs',
+                  entryFileNames: `[name].cjs`,
+                  globals: globals || {},
+                }
+              : undefined,
+            outputFormats.es
+              ? {
+                  name: libName,
+                  // generatedCode: 'es2015',
+                  format: 'es',
+                  entryFileNames: `[name].mjs`,
+                  globals: globals || {},
+                }
+              : undefined,
+            asSingleEntryPoint && outputFormats.umd
+              ? {
+                  name: libName,
+                  // generatedCode: 'es2015',
+                  format: 'umd',
+                  entryFileNames: `[name].[format].js`,
+                  inlineDynamicImports: false,
+                  globals: globals || {},
+                }
+              : undefined /** not compat */,
+          ] as (OutputOptions | undefined)[]
+        ).filter(f => f !== undefined),
         ...rollupOptions,
       },
     },
