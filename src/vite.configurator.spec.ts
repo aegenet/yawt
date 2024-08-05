@@ -11,7 +11,7 @@ describe('viteConfigurator', () => {
     });
     assert.isOk(config);
 
-    assert.strictEqual(config.plugins?.length, 3);
+    assert.strictEqual(config.plugins?.length, 4);
   });
 
   test('auto-alias - npm config', async () => {
@@ -22,7 +22,7 @@ describe('viteConfigurator', () => {
     });
     assert.isOk(config);
 
-    assert.strictEqual(config.plugins?.length, 3);
+    assert.strictEqual(config.plugins?.length, 4);
     assert.deepStrictEqual(Object.keys(config.resolve!.alias!), ['@aegenet/b', '@aegenet/c']);
     assert.ok((config!.resolve!.alias as Record<string, string>)!['@aegenet/b']!.endsWith('src'));
     assert.ok((config!.resolve!.alias as Record<string, string>)!['@aegenet/c']!.endsWith('src'));
@@ -36,7 +36,7 @@ describe('viteConfigurator', () => {
     });
     assert.isOk(config);
 
-    assert.strictEqual(config.plugins?.length, 3);
+    assert.strictEqual(config.plugins?.length, 4);
     assert.deepStrictEqual(config.resolve!.alias, {});
   });
 
@@ -49,7 +49,7 @@ describe('viteConfigurator', () => {
     });
     assert.isOk(config);
 
-    assert.strictEqual(config.plugins?.length, 3);
+    assert.strictEqual(config.plugins?.length, 4);
     assert.deepStrictEqual(Object.keys(config.resolve!.alias!), ['@aegenet/a']);
     assert.ok((config!.resolve!.alias as Record<string, string>)!['@aegenet/a']!.endsWith('src'));
   });
@@ -62,7 +62,7 @@ describe('viteConfigurator', () => {
     });
     assert.isOk(config);
 
-    assert.strictEqual(config.plugins?.length, 3);
+    assert.strictEqual(config.plugins?.length, 4);
     assert.deepStrictEqual(Object.keys(config.resolve!.alias!), ['@aegenet/a', '@aegenet/b']);
     assert.ok((config!.resolve!.alias as Record<string, string>)!['@aegenet/a']!.endsWith('src'));
     assert.ok((config!.resolve!.alias as Record<string, string>)!['@aegenet/b']!.endsWith('src'));

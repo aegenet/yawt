@@ -29,16 +29,14 @@ export function autoFixImportsPlugin(pluginOptions: {
           // Remove the path prefix from node_modules imports
           if (bundle.fileName.endsWith('.mjs')) {
             (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
-              // eslint-disable-next-line no-useless-escape
-              / from "[\.\/]+\/node_modules\//gi,
+              / from "[^"]+\/node_modules\//gi,
               () => {
                 return ' from "';
               }
             );
           } else if ((bundle as { fileName: string }).fileName.endsWith('.cjs')) {
             (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
-              // eslint-disable-next-line no-useless-escape
-              /require\("[\.\/]+\/node_modules\//gi,
+              /require\("[^"]+\/node_modules\//gi,
               () => {
                 return 'require("';
               }

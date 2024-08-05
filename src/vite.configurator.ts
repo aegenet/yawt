@@ -246,7 +246,8 @@ export async function viteConfigurator({
         ? autoFixImportsPlugin({
             onAutoFixImports,
           })
-        : trackInvalidImportsPlugin(),
+        : undefined,
+      trackInvalidImportsPlugin(),
       viteTSConfigPathsPlugin({
         cwd,
       }),
