@@ -24,19 +24,30 @@ export function autoFixImportsPlugin(pluginOptions: {
   return {
     name: 'auto-fix-imports',
     generateBundle(options: NormalizedOutputOptions, bundles: OutputBundle) {
-      for (const [, bundle] of Object.entries(bundles)) {
+      let bundle: OutputAsset | OutputChunk;
+      for (const bundleName in bundles) {
+        bundle = bundles[bundleName];
         if ((bundle as { code?: string }).code) {
           // Remove the path prefix from node_modules imports
           if (bundle.fileName.endsWith('.mjs')) {
             (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
-              / from "[^"]+\/node_modules\//gi,
+              / from "[^"]*\/node_modules\//gi,
               () => {
                 return ' from "';
               }
             );
-          } else if ((bundle as { fileName: string }).fileName.endsWith('.cjs')) {
             (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
-              /require\("[^"]+\/node_modules\//gi,
+              /\bimport "[^"]*\/node_modules\//gi,
+              () => {
+                return 'import "';
+              }
+            );
+          } else if (
+            (bundle as { fileName: string }).fileName.endsWith('.cjs') ||
+            (bundle as { fileName: string }).fileName.endsWith('.umd.js')
+          ) {
+            (bundle as { code: string }).code = (bundle as { code: string }).code.replace(
+              /\brequire\("[^"]*\/node_modules\//gi,
               () => {
                 return 'require("';
               }
