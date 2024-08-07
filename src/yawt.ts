@@ -189,6 +189,16 @@ const tasks = {
     ];
     return cmds.join(' && ');
   },
+  /**
+   * Regenerate package-lock.json (even if it's a npm workspace)
+   */
+  regenPackageLock: (project: YawtProject, { single }: YawtOptions) => {
+    if (single) {
+      return `npm i --package-lock-only --workspaces false`;
+    } else {
+      return `cd ./packages/${project.name}/ && npm i --package-lock-only --workspaces false`;
+    }
+  },
   /** forEach project */
   forEach: (project: YawtProject, { single, param }: YawtOptions) => {
     if (!param) {

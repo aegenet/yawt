@@ -103,7 +103,7 @@ describe('yawt', () => {
     ).rejects.toThrowError('"--param=something" is required for the "forEach" task');
   });
 
-  test('forEach', async () => {
+  test('forEach single', async () => {
     await yawt({
       task: 'forEach',
       single: true,
@@ -115,6 +115,23 @@ describe('yawt', () => {
   test('forEach', async () => {
     await yawt({
       task: 'forEach',
+      rootDir: './',
+      param: 'test',
+    });
+  });
+
+  test('regenPackageLock single', async () => {
+    await yawt({
+      task: 'regenPackageLock',
+      single: true,
+      rootDir: './packages/abc',
+      param: 'test',
+    });
+  });
+
+  test('regenPackageLock', async () => {
+    await yawt({
+      task: 'regenPackageLock',
       rootDir: './',
       param: 'test',
     });
