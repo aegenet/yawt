@@ -133,6 +133,7 @@ The selected task will be executed on all projects in the workspace.
 | `upgradeForce` | remove `./node_modules`, `package-lock.json` & `npm upgrade --latest` |
 | `clean` | `npm run clean` |
 | `deleteNodeModules` | Remove `./node_modules` |
+| `regenPackageLock` | (Re)Generate the `package-lock.json` *(even if it's a npm workspace)* |
 | `forEach` | The purpose of this task is to run a script for each project. Usage: `yawt --task=forEach --param=cspell`. |
 
 
