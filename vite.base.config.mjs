@@ -21,5 +21,6 @@ export function viteConfig(entryPoint) {
         });
       }
     },
+    minify: 'terser',
   });
 }

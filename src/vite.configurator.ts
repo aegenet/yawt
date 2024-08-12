@@ -20,6 +20,7 @@ import { getYawtProjectDeps } from './common/get-yawt-project-deps';
 import { trackInvalidImportsPlugin } from './vite-plugins/track-invalid-imports-plugin';
 import { autoFixImportsPlugin } from './vite-plugins/auto-fix-imports-plugin';
 import { viteTSConfigPathsPlugin } from './vite-plugins/vite-tsconfig-paths-plugin';
+import * as terser from '@rollup/plugin-terser';
 
 /**
  * Vite Configuration
@@ -33,7 +34,8 @@ export async function viteConfigurator({
   nodeExternal = false,
   external = [],
   globals = {},
-  minifyKeepClassNames = false,
+  minify = 'esbuild',
+  terserOptions = undefined,
   test,
   plugins = [],
   makeAbsoluteExternalsRelative = false,
@@ -92,9 +94,13 @@ export async function viteConfigurator({
    */
   globals?: Record<string, string>;
   /**
-   * Minify Keep Class Names
+   * Minify
    */
-  minifyKeepClassNames?: boolean;
+  minify?: boolean | 'terser' | 'esbuild';
+  /**
+   * Minify Terser Options
+   */
+  terserOptions?: terser.Options;
   test?: Omit<InlineConfig, 'server' | 'css'> & { exclude?: string[] };
   plugins?: Plugin[];
   /**
@@ -174,19 +180,19 @@ export async function viteConfigurator({
      *
      * @default true
      */
-    cjs?: boolean;
+    cjs?: boolean | OutputOptions;
     /**
      * ES Module
      *
      * @default true
      */
-    es?: boolean;
+    es?: boolean | OutputOptions;
     /**
      * Universal Module Definition
      *
      * @default true
      */
-    umd?: boolean;
+    umd?: boolean | OutputOptions;
   };
 }) {
   outputFormats.cjs ??= true;
@@ -246,6 +252,34 @@ export async function viteConfigurator({
     }
   }
 
+  rollupOptions ??= {};
+  if (minify === 'terser') {
+    rollupOptions.plugins ??= [];
+    if (!Array.isArray(rollupOptions.plugins)) {
+      rollupOptions.plugins = [rollupOptions.plugins];
+    }
+    (rollupOptions.plugins as any[]).push(
+      terser.default(
+        terserOptions ?? {
+          format: {
+            comments: false,
+          },
+          compress: {
+            drop_debugger: true,
+            passes: 3,
+          },
+          mangle: {
+            keep_classnames: false,
+            reserved: [],
+            properties: {
+              regex: /^_/,
+            },
+          },
+        }
+      )
+    );
+  }
+
   const asSingleEntryPoint = typeof entryPoint === 'string';
   const lib = asSingleEntryPoint
     ? {
@@ -255,6 +289,11 @@ export async function viteConfigurator({
         fileName: outputName || 'index',
       }
     : undefined;
+  const sharedOutputOpts: OutputOptions = {
+    compact: true,
+    globals: globals || {},
+    generatedCode: 'es2015',
+  };
 
   return defineConfig({
     test: {
@@ -293,15 +332,11 @@ export async function viteConfigurator({
           }
         : resolve,
     build: {
-      outDir: pathResolve(cwd, `./dist/${folder}`),
+      outDir: pathResolve(cwd, 'dist', folder),
       lib,
-      minify: minifyKeepClassNames === true ? 'terser' : 'esbuild',
-      terserOptions:
-        minifyKeepClassNames === true
-          ? {
-              keep_classnames: true,
-            }
-          : undefined,
+      minify,
+      sourcemap: true,
+      terserOptions: minify === 'terser' ? terserOptions : undefined,
       rollupOptions: {
         input: !asSingleEntryPoint ? entryPoint : undefined,
         // input: resolve(cwd, `src/${entryPoint || 'index.ts'}`),
@@ -315,30 +350,31 @@ export async function viteConfigurator({
           [
             outputFormats.cjs
               ? {
+                  ...sharedOutputOpts,
                   name: libName,
-                  // generatedCode: 'es2015',
                   format: 'cjs',
                   entryFileNames: `[name].cjs`,
-                  globals: globals || {},
+                  dynamicImportInCjs: true,
+                  ...(outputFormats.cjs === true ? {} : outputFormats.cjs),
                 }
               : undefined,
             outputFormats.es
               ? {
+                  ...sharedOutputOpts,
                   name: libName,
-                  // generatedCode: 'es2015',
                   format: 'es',
                   entryFileNames: `[name].mjs`,
-                  globals: globals || {},
+                  ...(outputFormats.es === true ? {} : outputFormats.es),
                 }
               : undefined,
             asSingleEntryPoint && outputFormats.umd
               ? {
+                  ...sharedOutputOpts,
                   name: libName,
-                  // generatedCode: 'es2015',
                   format: 'umd',
                   entryFileNames: `[name].[format].js`,
                   inlineDynamicImports: false,
-                  globals: globals || {},
+                  ...(outputFormats.umd === true ? {} : outputFormats.umd),
                 }
               : undefined /** not compat */,
           ] as (OutputOptions | undefined)[]

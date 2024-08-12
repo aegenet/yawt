@@ -14,5 +14,6 @@ export function viteConfig(entryPoint, cwd) {
         });
       }
     },
+    minify: 'terser',
   });
 }
