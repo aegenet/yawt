@@ -21,6 +21,7 @@ describe('get-yawt-project-deps', () => {
       });
       expect(alias).toBeTruthy();
       expect(Object.keys(alias!)).deep.equals([]);
+      expect(alias).deep.equals({});
     });
 
     it('Project a - alias', async () => {
@@ -30,6 +31,7 @@ describe('get-yawt-project-deps', () => {
       });
       expect(alias).toBeTruthy();
       expect(Object.keys(alias!)).deep.equals([]);
+      expect(alias).deep.equals({});
     });
 
     it('Project b - alias', async () => {
@@ -40,6 +42,9 @@ describe('get-yawt-project-deps', () => {
       expect(alias).toBeTruthy();
       expect(Object.keys(alias!)).deep.equals(['@aegenet/a']);
       Object.values(alias!).forEach(v => expect(v).match(/[a]$/) && expect(v).not.match(/[bc]$/));
+      expect(alias).deep.equals({
+        '@aegenet/a': './packages/a',
+      });
     });
 
     it('Project c - alias', async () => {
@@ -50,6 +55,10 @@ describe('get-yawt-project-deps', () => {
       expect(alias).toBeTruthy();
       expect(Object.keys(alias!)).deep.equals(['@aegenet/a', '@aegenet/b']);
       Object.values(alias!).forEach(v => expect(v).match(/[ab]$/) && expect(v).not.match(/[c]$/));
+      expect(alias).deep.equals({
+        '@aegenet/a': './packages/a',
+        '@aegenet/b': './packages/b',
+      });
     });
 
     it('Project b - alias - appendPath', async () => {
@@ -61,6 +70,9 @@ describe('get-yawt-project-deps', () => {
       expect(alias).toBeTruthy();
       expect(Object.keys(alias!)).deep.equals(['@aegenet/a']);
       Object.values(alias!).forEach(v => v.endsWith(resolve('a', 'src', 'index.ts')));
+      expect(alias).deep.equals({
+        '@aegenet/a': './packages/a/src/index.ts',
+      });
     });
 
     it('Project c - alias - appendPath', async () => {
@@ -74,6 +86,10 @@ describe('get-yawt-project-deps', () => {
       Object.values(alias!).forEach(
         v => v.endsWith(resolve('a', 'src', 'index.ts')) || v.endsWith(resolve('b', 'src', 'index.ts'))
       );
+      expect(alias).deep.equals({
+        '@aegenet/a': './packages/a/src/index.ts',
+        '@aegenet/b': './packages/b/src/index.ts',
+      });
     });
   });
 });

@@ -1,5 +1,6 @@
-import { join, basename, dirname } from 'node:path';
+import { join, basename, dirname, relative } from 'node:path';
 import { findYawtConfig } from './find-yawt-config';
+import { platform } from 'node:os';
 
 /**
  * Get Yawt Project dependencies aliases
@@ -10,6 +11,8 @@ export async function getYawtProjectDeps(options: {
   yawtFileName?: string;
   appendPath?: string;
 }): Promise<Record<string, string> | undefined> {
+  const isWin32 = platform() === 'win32';
+
   const appendPath = options.appendPath || '';
   const config = await findYawtConfig(options.cwd, options.yawtFileName);
   if (config) {
@@ -19,12 +22,21 @@ export async function getYawtProjectDeps(options: {
     if (projInfo) {
       if (projInfo.dependencies) {
         for (const dep of projInfo.dependencies) {
-          yawtAliases[dep] = join(rootPkg, `./packages/${basename(dep)}`, appendPath);
+          yawtAliases[dep] = './' + relative(options.cwd, join(rootPkg, 'packages', basename(dep), appendPath));
+          if (isWin32) {
+            // to unix path
+            yawtAliases[dep] = yawtAliases[dep].replaceAll('\\', '/');
+          }
         }
       }
       if (projInfo.devDependencies) {
         for (const dep of projInfo.devDependencies) {
-          yawtAliases[dep] = join(rootPkg, `./packages/${basename(dep)}`, appendPath);
+          yawtAliases[dep] = './' + relative(options.cwd, join(rootPkg, 'packages', basename(dep), appendPath));
+          // to unix path
+          if (isWin32) {
+            // to unix path
+            yawtAliases[dep] = yawtAliases[dep].replaceAll('\\', '/');
+          }
         }
       }
     }
