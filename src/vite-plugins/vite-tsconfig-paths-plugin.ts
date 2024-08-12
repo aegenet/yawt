@@ -30,7 +30,13 @@ export function viteTSConfigPathsPlugin(pluginOptions: { cwd: string }) {
             // back to unix path
             currentAlias = './' + currentAlias.replaceAll('\\', '/');
           } else {
-            currentAlias = relative(pluginOptions.cwd, (config.resolve!.alias! as Record<string, string>)![alias]);
+            currentAlias =
+              './' +
+              relative(
+                pluginOptions.cwd,
+                // ensure unix path
+                (config.resolve!.alias! as Record<string, string>)![alias].replaceAll('\\', '/')
+              );
           }
           if (tsconfig.compilerOptions.paths[alias]?.[0] !== currentAlias) {
             tsconfig.compilerOptions.paths[alias] = [currentAlias];
