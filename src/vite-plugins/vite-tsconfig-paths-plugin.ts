@@ -1,11 +1,13 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve as pathResolve, relative } from 'node:path';
 import type { UserConfig } from 'vite';
+import { platform } from 'node:os';
 
 /**
  * Auto update tsconfig paths
  */
 export function viteTSConfigPathsPlugin(pluginOptions: { cwd: string }) {
+  const isWin32 = platform() === 'win32';
   return {
     name: 'vite-tsconfig-paths',
     async config(config: UserConfig /*, env: ConfigEnv */) {
@@ -19,7 +21,17 @@ export function viteTSConfigPathsPlugin(pluginOptions: { cwd: string }) {
         let currentAlias: string | undefined;
         for (const alias in config.resolve!.alias) {
           // relative path
-          currentAlias = relative(pluginOptions.cwd, (config.resolve!.alias! as Record<string, string>)![alias]);
+          if (isWin32) {
+            currentAlias = relative(
+              pluginOptions.cwd,
+              // resolve alias format to windows path
+              (config.resolve!.alias! as Record<string, string>)![alias].replaceAll('/', '\\')
+            );
+            // back to unix path
+            currentAlias = './' + currentAlias.replaceAll('\\', '/');
+          } else {
+            currentAlias = relative(pluginOptions.cwd, (config.resolve!.alias! as Record<string, string>)![alias]);
+          }
           if (tsconfig.compilerOptions.paths[alias]?.[0] !== currentAlias) {
             tsconfig.compilerOptions.paths[alias] = [currentAlias];
             hasChanged = true;
