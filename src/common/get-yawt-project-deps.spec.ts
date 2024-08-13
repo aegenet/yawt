@@ -91,5 +91,22 @@ describe('get-yawt-project-deps', () => {
         '@aegenet/b': './packages/b/src/index.ts',
       });
     });
+
+    it('Project c - alias - appendPath - cwd c', async () => {
+      const alias = await getYawtProjectDeps({
+        cwd: resolve(process.cwd(), './samples/workspace3/packages/c'),
+        currentProject: 'c',
+        appendPath: 'src/index.ts',
+      });
+      expect(alias).toBeTruthy();
+      expect(Object.keys(alias!)).deep.equals(['@aegenet/a', '@aegenet/b']);
+      Object.values(alias!).forEach(
+        v => v.endsWith(resolve('a', 'src', 'index.ts')) || v.endsWith(resolve('b', 'src', 'index.ts'))
+      );
+      expect(alias).deep.equals({
+        '@aegenet/a': './../a/src/index.ts',
+        '@aegenet/b': './../b/src/index.ts',
+      });
+    });
   });
 });
