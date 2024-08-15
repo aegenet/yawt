@@ -126,7 +126,7 @@ The selected task will be executed on all projects in the workspace.
 | `lint` | `npm run lint` |
 | `dependencies` | `npm i` & `npm link` all `links` |
 | `upgrade` | remove `./node_modules`, `package-lock.json` & `npm i` |
-| `publish` | remove devDependencies, scripts & `npm publish` |
+| `publish` | remove devDependencies, scripts, ./dist/**/*.map & `npm publish` *(you can keep the .map with `--param=keep-map`)* |
 
 | Task | Description |
 | --- | --- |

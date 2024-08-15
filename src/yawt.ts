@@ -174,19 +174,21 @@ const tasks = {
   /** Publish */
   publish: async (
     project: YawtProject,
-    { single, npmRegistryURL, npmPublicPublish, npmNamespace, rootDir }: YawtOptions
+    { single, npmRegistryURL, npmPublicPublish, npmNamespace, rootDir, param }: YawtOptions
   ) => {
     const registry = npmRegistryURL || 'https://npm.pkg.github.com/';
     const pkgPath = single ? './' : `./packages/${project.name}/`;
     const registryNS = npmNamespace ? npmNamespace + ':registry' : 'registry';
     const jsonPath = await _getJSONLibPath(rootDir!);
+    const rimrafPath = await _getRimrafLibPath(rootDir!);
 
     const cmds = [
+      param === 'keep-map' ? undefined : `node ${rimrafPath} --glob ${pkgPath}dist/**/*.map`,
       // Remove devDependencies in npm package
       `node ${jsonPath} -I -f ${pkgPath}package.json -e "this.devDependencies={};this.scripts={};this.jest=undefined;this.publishConfig||={};this.publishConfig['${registryNS}']='${registry}';"`,
       `cd ${pkgPath}`,
       `npm publish --${registryNS}=${registry}${npmPublicPublish ? ' --access public' : ''}`,
-    ];
+    ].filter(f => f);
     return cmds.join(' && ');
   },
   /**

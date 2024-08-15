@@ -93,6 +93,23 @@ describe('yawt', () => {
     }
   });
 
+  test('publish --param=keep-map', async () => {
+    const backPkg = await readFile('./packages/abc/package.json', 'utf-8');
+    try {
+      await expect(() =>
+        yawt({
+          task: 'publish',
+          single: true,
+          param: 'keep-map',
+          rootDir: './packages/abc',
+          npmRegistryURL: 'https://registry.npmjs.test',
+        })
+      ).rejects.toThrowError();
+    } finally {
+      await writeFile('./packages/abc/package.json', backPkg, 'utf-8');
+    }
+  });
+
   test('forEach without scriptName', async () => {
     await expect(() =>
       yawt({
