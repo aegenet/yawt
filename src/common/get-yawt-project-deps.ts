@@ -1,6 +1,7 @@
 import { join, basename, dirname, relative } from 'node:path';
 import { findYawtConfig } from './find-yawt-config';
 import { platform } from 'node:os';
+import type { YawtProject } from '../yawt-project';
 
 /**
  * Get Yawt Project dependencies aliases
@@ -10,6 +11,7 @@ export async function getYawtProjectDeps(options: {
   currentProject: string;
   yawtFileName?: string;
   appendPath?: string;
+  relative?: boolean;
 }): Promise<Record<string, string> | undefined> {
   const isWin32 = platform() === 'win32';
 
@@ -18,24 +20,23 @@ export async function getYawtProjectDeps(options: {
   if (config) {
     const rootPkg = dirname(config.configPath.replace('.build', ''));
     const yawtAliases: Record<string, string> = {};
-    const projInfo = config.projects.find(f => f.name === options.currentProject);
+    const projInfo: Record<string, string[]> | undefined = config.projects.find(
+      f => f.name === options.currentProject
+    ) as Pick<YawtProject, 'dependencies' | 'devDependencies'> | undefined satisfies
+      | Record<string, string[]>
+      | undefined;
+    let currentPath: string | undefined;
+
     if (projInfo) {
-      if (projInfo.dependencies) {
-        for (const dep of projInfo.dependencies) {
-          yawtAliases[dep] = './' + relative(options.cwd, join(rootPkg, 'packages', basename(dep), appendPath));
-          if (isWin32) {
-            // to unix path
-            yawtAliases[dep] = yawtAliases[dep].replaceAll('\\', '/');
-          }
-        }
-      }
-      if (projInfo.devDependencies) {
-        for (const dep of projInfo.devDependencies) {
-          yawtAliases[dep] = './' + relative(options.cwd, join(rootPkg, 'packages', basename(dep), appendPath));
-          // to unix path
-          if (isWin32) {
-            // to unix path
-            yawtAliases[dep] = yawtAliases[dep].replaceAll('\\', '/');
+      for (const depType of ['dependencies', 'devDependencies']) {
+        if (projInfo[depType]) {
+          for (const dep of projInfo[depType]) {
+            currentPath = join(rootPkg, 'packages', basename(dep), appendPath);
+            yawtAliases[dep] = options.relative ? './' + relative(options.cwd, currentPath) : currentPath;
+            if (isWin32) {
+              // to unix path
+              yawtAliases[dep] = yawtAliases[dep].replaceAll('\\', '/');
+            }
           }
         }
       }
