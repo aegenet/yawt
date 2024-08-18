@@ -196,7 +196,7 @@ const tasks = {
    */
   regenPackageLock: (project: YawtProject, { single }: YawtOptions) => {
     if (single) {
-      return `npm i --package-lock-only --workspaces false`;
+      return `npm ci --package-lock-only --workspaces false`;
     } else {
       return `cd ./packages/${project.name}/ && npm i --package-lock-only --workspaces false`;
     }
