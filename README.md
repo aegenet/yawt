@@ -126,7 +126,7 @@ The selected task will be executed on all projects in the workspace.
 | `lint` | `npm run lint` |
 | `dependencies` | `npm i` & `npm link` all `links` |
 | `upgrade` | remove `./node_modules`, `package-lock.json` & `npm i` |
-| `publish` | remove devDependencies, scripts, ./dist/**/*.map & `npm publish` *(you can keep the .map with `--param=keep-map`)* |
+| `publish` | remove devDependencies, scripts, ./dist/**/*.map & `npm publish` *(you can keep the .map with `--param=keep-map` or/and (re)generate the `package-lock.json` with `--param=package-lock` )* |
 
 | Task | Description |
 | --- | --- |
@@ -135,6 +135,7 @@ The selected task will be executed on all projects in the workspace.
 | `deleteNodeModules` | Remove `./node_modules` |
 | `regenPackageLock` | (Re)Generate the `package-lock.json` *(even if it's a npm workspace)* |
 | `forEach` | The purpose of this task is to run a script for each project. Usage: `yawt --task=forEach --param=cspell`. |
+| `forEachRaw` | The purpose of this task is to run a command for each project. Usage: `yawt --task=forEachRaw --param="echo hello"`. |
 
 
 # Coverage

@@ -1,8 +1,8 @@
 import { type YawtTaskNames, yawt } from './yawt';
-import { argv2Object } from './utils/argv-2-object';
+import { argvToObject } from '@aegenet/belt-argv-to-obj';
 import { env, argv, exit } from 'node:process';
 
-const cliParams = argv2Object<{
+const cliParams = argvToObject<{
   task: YawtTaskNames;
   workers: number;
   silent: boolean;
@@ -12,7 +12,7 @@ const cliParams = argv2Object<{
   npmNamespace: string;
   publish: boolean;
   npmVersion: string;
-  param: string;
+  param: string | string[];
 }>(argv.slice(2));
 
 let npmVersion: string | undefined = cliParams.npmVersion?.trim();
@@ -35,7 +35,7 @@ yawt({
     cliParams.npmPublicPublish || env.YAWT_NPM_PUBLIC_PUBLISH === 'true' || env.YAWT_NPM_PUBLIC_PUBLISH === '1',
   npmNamespace: cliParams.npmNamespace || env.YAWT_NPM_NAMESPACE,
   npmVersion: npmVersion,
-  param: cliParams.param,
+  params: cliParams.param ? (Array.isArray(cliParams.param) ? cliParams.param : [cliParams.param]) : [],
 })
   .then(() => {
     exit(0);

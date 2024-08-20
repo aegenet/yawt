@@ -100,7 +100,24 @@ describe('yawt', () => {
         yawt({
           task: 'publish',
           single: true,
-          param: 'keep-map',
+          params: ['keep-map'],
+          rootDir: './packages/abc',
+          npmRegistryURL: 'https://registry.npmjs.test',
+        })
+      ).rejects.toThrowError();
+    } finally {
+      await writeFile('./packages/abc/package.json', backPkg, 'utf-8');
+    }
+  });
+
+  test('publish --param=keep-map;package-lock', async () => {
+    const backPkg = await readFile('./packages/abc/package.json', 'utf-8');
+    try {
+      await expect(() =>
+        yawt({
+          task: 'publish',
+          single: true,
+          params: ['keep-map', 'package-lock'],
           rootDir: './packages/abc',
           npmRegistryURL: 'https://registry.npmjs.test',
         })
@@ -125,7 +142,7 @@ describe('yawt', () => {
       task: 'forEach',
       single: true,
       rootDir: './packages/abc',
-      param: 'test',
+      params: ['test'],
     });
   });
 
@@ -133,7 +150,34 @@ describe('yawt', () => {
     await yawt({
       task: 'forEach',
       rootDir: './',
-      param: 'test',
+      params: ['test'],
+    });
+  });
+
+  test('forEachRaw without scriptName', async () => {
+    await expect(() =>
+      yawt({
+        task: 'forEachRaw',
+        single: true,
+        rootDir: './packages/abc',
+      })
+    ).rejects.toThrowError('--param="npm run something" is required for the "forEachRaw" task');
+  });
+
+  test('forEachRaw single', async () => {
+    await yawt({
+      task: 'forEachRaw',
+      single: true,
+      rootDir: './packages/abc',
+      params: ['echo hello'],
+    });
+  });
+
+  test('forEachRaw', async () => {
+    await yawt({
+      task: 'forEachRaw',
+      rootDir: './',
+      params: ['echo hello'],
     });
   });
 
@@ -142,7 +186,6 @@ describe('yawt', () => {
       task: 'regenPackageLock',
       single: true,
       rootDir: './packages/abc',
-      param: 'test',
     });
   });
 
@@ -150,7 +193,6 @@ describe('yawt', () => {
     await yawt({
       task: 'regenPackageLock',
       rootDir: './',
-      param: 'test',
     });
   });
 });

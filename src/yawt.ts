@@ -6,6 +6,7 @@ import type { YawtProject } from './yawt-project';
 import { cwd } from 'node:process';
 
 const exec = util.promisify(child_process.exec);
+const PACKAGE_LOCK_CMD = 'npm ci --package-lock-only --workspaces false';
 
 const tasks = {
   /** Clean up */
@@ -174,7 +175,7 @@ const tasks = {
   /** Publish */
   publish: async (
     project: YawtProject,
-    { single, npmRegistryURL, npmPublicPublish, npmNamespace, rootDir, param }: YawtOptions
+    { single, npmRegistryURL, npmPublicPublish, npmNamespace, rootDir, params = [] }: YawtOptions
   ) => {
     const registry = npmRegistryURL || 'https://npm.pkg.github.com/';
     const pkgPath = single ? './' : `./packages/${project.name}/`;
@@ -183,10 +184,11 @@ const tasks = {
     const rimrafPath = await _getRimrafLibPath(rootDir!);
 
     const cmds = [
-      param === 'keep-map' ? undefined : `node ${rimrafPath} --glob ${pkgPath}dist/**/*.map`,
+      params.indexOf('keep-map') !== -1 ? undefined : `node ${rimrafPath} --glob ${pkgPath}dist/**/*.map`,
       // Remove devDependencies in npm package
       `node ${jsonPath} -I -f ${pkgPath}package.json -e "this.devDependencies={};this.scripts={};this.jest=undefined;this.publishConfig||={};this.publishConfig['${registryNS}']='${registry}';"`,
       `cd ${pkgPath}`,
+      params.indexOf('package-lock') !== -1 ? PACKAGE_LOCK_CMD : undefined,
       `npm publish --${registryNS}=${registry}${npmPublicPublish ? ' --access public' : ''}`,
     ].filter(f => f);
     return cmds.join(' && ');
@@ -196,21 +198,35 @@ const tasks = {
    */
   regenPackageLock: (project: YawtProject, { single }: YawtOptions) => {
     if (single) {
-      return `npm ci --package-lock-only --workspaces false`;
+      return PACKAGE_LOCK_CMD;
     } else {
-      return `cd ./packages/${project.name}/ && npm i --package-lock-only --workspaces false`;
+      return `cd ./packages/${project.name}/ && ${PACKAGE_LOCK_CMD}`;
     }
   },
   /** forEach project */
-  forEach: (project: YawtProject, { single, param }: YawtOptions) => {
-    if (!param) {
+  forEach: (project: YawtProject, { single, params = [] }: YawtOptions) => {
+    if (!params?.length) {
       throw new Error('"--param=something" is required for the "forEach" task');
     }
+    const cmds = params.map(param => `npm run ${param} --if-present`).join(' && ');
 
     if (single) {
-      return `npm run ${param} --if-present`;
+      return cmds;
     } else {
-      return `cd ./packages/${project.name}/ && npm run ${param} --if-present`;
+      return `cd ./packages/${project.name}/ && ${cmds}`;
+    }
+  },
+  /** forEachRaw project */
+  forEachRaw: (project: YawtProject, { single, params = [] }: YawtOptions) => {
+    if (!params?.length) {
+      throw new Error('--param="npm run something" is required for the "forEachRaw" task');
+    }
+    const cmds = params.join(' && ');
+
+    if (single) {
+      return cmds;
+    } else {
+      return `cd ./packages/${project.name}/ && ${cmds}`;
     }
   },
 } as const;
@@ -371,6 +387,6 @@ export type YawtOptions = {
   /**
    * Generic parameter for tasks
    */
-  param?: string;
+  params?: string[];
 };
 export type YawtTaskNames = keyof typeof tasks;
