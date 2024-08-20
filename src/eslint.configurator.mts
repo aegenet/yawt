@@ -1,6 +1,8 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettier from 'eslint-plugin-prettier';
+// @ts-expect-error Typings are missing
+import noOnlyTests from 'eslint-plugin-no-only-tests';
 import type { rules as eslintRules } from '@typescript-eslint/eslint-plugin';
 import globals from 'globals';
 
@@ -27,6 +29,7 @@ export function eslintConfigurator({
       plugins: {
         // others
         prettier: prettier,
+        'no-only-tests': noOnlyTests,
       },
       rules: {
         // others
@@ -48,6 +51,8 @@ export function eslintConfigurator({
         },
       },
       rules: {
+        curly: 'error',
+        'no-debugger': 'error',
         'no-console': noConsole ? 'error' : 'warn',
         'prettier/prettier': ['error'],
         '@typescript-eslint/no-inferrable-types': 'off',
@@ -55,6 +60,7 @@ export function eslintConfigurator({
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-floating-promises': ['error'],
         'no-unused-vars': 'off',
+        'no-only-tests/no-only-tests': 'error',
         '@typescript-eslint/no-unused-vars': ['error', { args: 'after-used', ignoreRestSiblings: true }],
         '@typescript-eslint/naming-convention': namingConvention
           ? [
