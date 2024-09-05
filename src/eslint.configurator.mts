@@ -33,11 +33,12 @@ export function eslintConfigurator({
       },
       rules: {
         // others
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...(prettier.configs!.recommended as any).rules,
       },
     },
     {
-      // files: ['*.ts', '*.tsx'],
+      files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
       languageOptions: {
         ecmaVersion: 2023,
         sourceType: 'module',
