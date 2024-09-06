@@ -7,6 +7,7 @@ describe('index', () => {
     expect(Object.keys(YawtLib)).toEqual([
       'coverageConfiguration',
       'viteConfigurator',
+      'viteInjectEnvPlugin',
       'rollupDTSConfigurator',
       'eslintConfigurator',
       'prettierConfigurator',

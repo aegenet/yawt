@@ -49,6 +49,7 @@
     "@aegenet/ya-vite-banner": "^1.0.2",
     "@rollup/plugin-terser": "^0.4.4",
     "@vitest/coverage-v8": "^2.0.5",
+    "dotenv": "^16.4.5",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
